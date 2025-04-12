@@ -146,18 +146,18 @@ npx nodemon
 
 ## 📊 Modelos de Datos
 
-### Usuario
+### User
 ```javascript
 {
   "_id": ObjectId,
   "name": "string",
   "email": "string",
-  "pasword": "string",
+  "password": "string",
   "save": ["book_id"], 
   "read": [
     {
       "book": "book_id",
-      "estado": "string" // estado de lectura
+      "state": "string" // estado de lectura
     }
   ],
   "preferences": [
@@ -166,29 +166,33 @@ npx nodemon
       "languages": ["string"]
     }
   ],
-  "timestar": "ISODate",
+    "timestamp": "ISODate"
   "like": ["book_id"],
   "dislike": ["book_id"],
   "list": ["list_id"]
 }
 ```
 
-### books_assing
+### book
 ```javascript
 {
   "_id": ObjectId,
   "name": "string",
   "like": NumberInt,
   "dislike": NumberInt,
-  "estado": NumberDecimal, // porcentaje de algo (¿progreso?)
-  "opinion": [
+  "state": NumberDecimal, // porcentaje de algo (¿progreso?)
+  "review": [
     {
       "user": "user_id",
       "text": "string",
-      "valoration": NumberInt
+      "rating": NumberInt
     }
   ],
+  "genre":"string"
+  "language":"string"
   "url": "string"
+  "timestamp": "ISODate"
+
 }
 ```
 
@@ -198,7 +202,7 @@ npx nodemon
   "_id": ObjectId,
   "name": "string",
   "books": ["book_id"],
-  "timestar": "ISODate"
+  "timestamp": "ISODate"
 }
 ```
 
@@ -208,11 +212,11 @@ Para mantener un desarrollo organizado y colaborativo, seguimos el siguiente flu
 
 ### Ramas Principales
 - `main` - Código de producción estable
-- `develop` - Rama de desarrollo e integración
+- `dev` - Rama de desarrollo e integración
 
 ### Ramas de Características
 Para nuevas funcionalidades:
-- `feature/nombre-funcionalidad`
+- `nombrePersona/nombre-funcionalidad`
 
 ### Ramas de Corrección
 Para corrección de errores:
