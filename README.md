@@ -8,6 +8,7 @@
 - [Tecnologías](#tecnologías)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Requisitos Previos](#requisitos-previos)
+- [Visual Studio Code](#visual-studio-code)
 - [Instalación](#instalación)
 - [Configuración](#configuración)
 - [Ejecución](#ejecución)
@@ -80,6 +81,10 @@ Para ejecutar este proyecto, necesitarás:
 - Node.js (v16.x o superior)
 - MongoDB (local o conexión a MongoDB Atlas)
 - Git
+
+## Visual Studio Code
+**CRLF**
+Se debe cambiar a modo CRLF en Visual Studio Code
 
 ## 🚀 Instalación
 
