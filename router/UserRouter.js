@@ -1,17 +1,27 @@
 const express = require('express');
 const router = express.Router();
+const { body } = require('express-validator');
+
 const {
-   //getUsers,
+    loginUser,
   } = require('../controllers/UserController');
+const validationChecker = require('../middlewares/validationChecker');
 
- /*
 
- Como tiene que estar estructurado de rutas
 
- // GET /usuarios - Obtener todos los usuarios
-router.get('/', getUsers);
- 
- */
+
+// POST /users/login - login de un usuario
+
+router.post('/login',
+    [
+    body('email').isEmail().withMessage('Email no válido'),
+    body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+    validationChecker
+]
+    ,loginUser )
+
+
+
 
 
 module.exports = router;
