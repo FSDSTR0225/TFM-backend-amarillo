@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const userRouter = require('./router/UserRouter');
+const listRouter = require('./router/ListRouter');
+const bookRouter = require('./router/BookRouter');
 
 
 const app = express();
@@ -30,8 +33,9 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Rutas de la API
 
-
-
+app.use('/users', userRouter);
+app.use('/lists', listRouter);
+app.use('/books', bookRouter);
 
 // Iniciar el servidor
 app.listen(port, () => {
