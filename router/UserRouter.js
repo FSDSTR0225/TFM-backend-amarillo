@@ -14,9 +14,16 @@ const validationChecker = require('../middlewares/validationChecker');
 
 router.post('/login',
     [
-    body('email').isEmail().withMessage('Email no válido'),
-    body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
-    validationChecker
+    body('email')
+    .isEmail()
+    .withMessage('Email no válido'),
+    body('password')
+    .isLength({ min: 6 })
+    .withMessage('La contraseña debe tener al menos 6 caracteres')
+    .matches(/[0-9]/)
+    .withMessage('La contraseña debe contener al menos un número')
+    .matches(/[!@#$%^&*(),.?":{}|<>]/)
+    .withMessage('La contraseña debe contener al menos un carácter especial'),validationChecker
 ]
     ,loginUser )
 
