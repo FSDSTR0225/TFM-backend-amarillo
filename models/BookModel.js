@@ -45,6 +45,14 @@ const bookSchema = new Schema(
     url: {
       type: String,
     },
+    synopsis: {
+      type: String,
+    },
+    author: {
+      type: String,
+    },imgBook: {
+      type: String,
+    },
   },
   {
     timestamps: true, // Añade campos createdAt y updatedAt automáticamente
