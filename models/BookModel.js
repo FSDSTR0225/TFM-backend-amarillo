@@ -38,8 +38,10 @@ const bookSchema = new Schema(
     ],
     genre: {
       type: [String],
-    },
-    language: {
+    }, 
+    author: {
+      type: [String],
+    },language: {
       type: String,
     },
     url: {
