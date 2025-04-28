@@ -19,8 +19,8 @@ const validationChecker = require('../middlewares/validationChecker');
 // POST /books - crear libros
 router.post('/',[
    body('name').isString().withMessage('El nombre es obligatorio'),
-   body('genre').isString().withMessage('El genero es obligatorio'),
-   body('language').isArray().withMessage('El idioma es obligatorio y tiene que ser un array'),
+   body('genre').isArray().withMessage('El genero es obligatorio'),
+   body('language').isString().withMessage('El idioma es obligatorio y tiene que ser un array'),
    body('synopsis').isString().withMessage('la sinopsis es obligatorio'),
    body('author').isArray().withMessage('El autor es obligatorio  y tiene que ser un array'),
    body('imgBook').isURL().withMessage('la imagen es obligatorio y tiene que ser una url'),validationChecker

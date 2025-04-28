@@ -38,13 +38,19 @@ const bookSchema = new Schema(
     ],
     genre: {
       type: [String],
-    }, 
-    author: {
-      type: [String],
-    },language: {
+    },
+    language: {
       type: String,
     },
     url: {
+      type: String,
+    },
+    synopsis: {
+      type: String,
+    },
+    author: {
+      type: [String],
+    },imgBook: {
       type: String,
     },
   },
