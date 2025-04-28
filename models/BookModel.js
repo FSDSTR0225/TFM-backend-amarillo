@@ -37,7 +37,7 @@ const bookSchema = new Schema(
       },
     ],
     genre: {
-      type: String,
+      type: [String],
     },
     language: {
       type: String,
@@ -49,7 +49,7 @@ const bookSchema = new Schema(
       type: String,
     },
     author: {
-      type: String,
+      type: [String],
     },imgBook: {
       type: String,
     },
@@ -60,3 +60,4 @@ const bookSchema = new Schema(
 );
 
 module.exports = mongoose.model("Book", bookSchema);
+
