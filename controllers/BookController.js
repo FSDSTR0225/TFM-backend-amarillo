@@ -30,7 +30,7 @@ const getBook = async (req, res) => {
 
 /*
  * Crear un libro
- * GET /books
+ * Post /books
  */
 const createBook = async (req, res) => {
   try {
