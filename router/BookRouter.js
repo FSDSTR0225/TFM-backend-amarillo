@@ -16,6 +16,10 @@ const validationChecker = require('../middlewares/validationChecker');
 // GET /books - Obtener todos los libros
  router.get('/', getBook);
 
+ 
+ //si necesitan usar body
+ router.use(express.json());
+
 // POST /books - crear libros
 router.post('/',[
    body('name').isString().withMessage('El nombre es obligatorio'),
