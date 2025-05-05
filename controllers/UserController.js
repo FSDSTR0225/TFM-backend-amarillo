@@ -16,6 +16,10 @@ const loginUser = async (req, res) => {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
+  // if (!user && bcrypt.compareSync(password, user.password)) {
+  //   return res.status(401).json({ message: "Invalid email or password" });
+  // }
+
   const token = jwt.sign(
     {
       id: user._id,
