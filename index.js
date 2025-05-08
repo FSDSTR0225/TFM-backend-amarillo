@@ -6,7 +6,7 @@ const morgan = require('morgan');
 const userRouter = require('./router/UserRouter');
 const listRouter = require('./router/ListRouter');
 const bookRouter = require('./router/BookRouter');
-
+const tokenRouter = require('./router/TokenRouter');
 
 const app = express();
 const cors = require("cors");
@@ -37,7 +37,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/users', userRouter);
 app.use('/lists', listRouter);
 app.use('/books', bookRouter);
-
+app.use('/token', tokenRouter);
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`🚀 Servidor iniciado en http://localhost:${port}`);
