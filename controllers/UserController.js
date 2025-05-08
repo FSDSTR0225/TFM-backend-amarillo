@@ -12,11 +12,12 @@ const loginUser = async (req, res) => {
   const user = await User.findOne({ email: email });
 
 
-  if (!user && user.password !== password) {
+
+  if (!user || user.password !== password) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  // if (!user && bcrypt.compareSync(password, user.password)) {
+  // if (!user || bcrypt.compareSync(password, user.password)) {
   //   return res.status(401).json({ message: "Invalid email or password" });
   // }
 
@@ -34,7 +35,7 @@ const loginUser = async (req, res) => {
     email: user.email,
   };
   res.json({ access_token: token, token_type: "Bearer" ,user:userData });
-  res.json({ msg: "Task updated" });
+  // res.json({ msg: "Task updated" });
 };
 
 //prueba
