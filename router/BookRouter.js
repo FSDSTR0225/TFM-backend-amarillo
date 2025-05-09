@@ -17,6 +17,8 @@ router.use(express.json());
 router.get('/', getUsers);
  
  */
+//si necesitan usar body
+router.use(express.json());
 
 
 module.exports = router;
