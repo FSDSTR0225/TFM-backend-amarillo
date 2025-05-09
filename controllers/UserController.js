@@ -1,26 +1,55 @@
 const User = require('../models/UserModel');
-
+const jwt = require("jsonwebtoken");
 
 
 /*
-como tiene que ser la estructura de los controladores
-
- * Obtener todas las tareas
- * GET /Users
- 
-const getUsers = async (req, res) => {
-    try {
-      const Users = await Task.find({}).populate('owner', 'name');
-      res.json(Users);
-    } catch (error) {
-      res.status(500).json({ msg: error.message });
-    }
-  };
-  
+ * login de un usuario
+ * POST /users/login
 */
 
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
+
+
+
+  if (!user || user.password !== password) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  // if (!user || bcrypt.compareSync(password, user.password)) {
+  //   return res.status(401).json({ message: "Invalid email or password" });
+  // }
+
+  const token = jwt.sign(
+    {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '1m' } // Cambia el tiempo de expiración 
+  );
+  const userData = {
+    name: user.name,
+    email: user.email,
+  };
+  res.json({ access_token: token, token_type: "Bearer" ,user:userData });
+  // res.json({ msg: "Task updated" });
+};
+
+//prueba
+// const getUser = (req, res, next) => {
+//   const user = req.authUser;
+//   if (!user) {
+//     return res.status(401).json({ message: "No user found" });
+//   }
+//   res.json(user);
+
+// };
+
 module.exports = {
-    //getUsers,
-    
+  // getUser,
+    loginUser
   };
   

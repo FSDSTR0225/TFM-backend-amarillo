@@ -16,7 +16,6 @@ const validationChecker = require('../middlewares/validationChecker');
 // GET /books - Obtener todos los libros
  router.get('/', getBook);
 
- 
  //si necesitan usar body
  router.use(express.json());
 
@@ -29,6 +28,11 @@ router.post('/',[
    body('author').isArray().withMessage('El autor es obligatorio  y tiene que ser un array'),
    body('imgBook').isURL().withMessage('la imagen es obligatorio y tiene que ser una url'),validationChecker
 ], createBook);
+
+
+ 
+//si necesitan usar body
+router.use(express.json());
 
 
 
