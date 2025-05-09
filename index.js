@@ -17,7 +17,6 @@ const port = process.env.PORT || 3000;
 app.use(cors()); //cors
 
 // middleware que añade cabeceras extra de seguridad a las respuestas
-
 app.use(express.urlencoded({ extended: true }));
 //mas seguridad al servidor
 app.use(helmet());
