@@ -4,6 +4,11 @@ const {
    //getUsers,
   } = require('../controllers/UserController');
 
+
+
+  
+//si necesitan usar body
+router.use(express.json());
  /*
 
  Como tiene que estar estructurado de rutas
