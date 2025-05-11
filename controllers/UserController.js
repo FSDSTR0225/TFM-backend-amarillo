@@ -28,14 +28,13 @@ const loginUser = async (req, res) => {
       email: user.email,
     },
     process.env.JWT_SECRET,
-    { expiresIn: '1m' } // Cambia el tiempo de expiración 
+    { expiresIn: '3m' } // Cambia el tiempo de expiración 
   );
   const userData = {
     name: user.name,
     email: user.email,
   };
-  res.json({ access_token: token, token_type: "Bearer" ,user:userData });
-  // res.json({ msg: "Task updated" });
+  res.json({msg: "Task updated", access_token: token, token_type: "Bearer" ,user:userData });
 };
 
 //prueba
