@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
       email: user.email,
     },
     process.env.JWT_SECRET,
-    { expiresIn: '3m' } // Cambia el tiempo de expiración 
+   // { expiresIn: '3m' } // Cambia el tiempo de expiración 
   );
   const userData = {
     name: user.name,
