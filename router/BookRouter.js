@@ -7,6 +7,8 @@ const { getAuthUser } = require('../middlewares/auth');
 const {
     getBook,
    createBook,
+   getBookID,
+   addReview
   } = require('../controllers/BookController');
 const validationChecker = require('../middlewares/validationChecker');
 
@@ -31,7 +33,8 @@ router.use(getAuthUser);
 
 // GET /books - Obtener todos los libros
  router.get('/', getBook);
-
+ router.get('/:id', getBookID);
+ router.get('/review/:id', addReview);
 
 
 
