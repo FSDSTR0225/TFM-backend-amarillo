@@ -131,23 +131,20 @@ npx nodemon
 ## 🌐 API Endpoints
 
 ### Autenticación
-- `POST /api/auth/register` - Registro de usuario
-- `POST /api/auth/login` - Inicio de sesión
-- `POST /api/auth/logout` - Cierre de sesión
+- `POST /api/users/register` - Registro de usuario
+- `POST /api/users/login` - Inicio de sesión
+
 
 ### Usuarios
-- `GET /api/users/profile` - Obtener perfil del usuario
-- `PUT /api/users/profile` - Actualizar perfil
+
 
 ### Libros
 - `GET /api/books` - Listar libros con filtros
-- `GET /api/books/:id` - Obtener detalles de un libro
-- `POST /api/books/:id/match` - Marcar libro como "me gusta"
-- `POST /api/books/:id/dismiss` - Descartar libro
+- `POST /api/books/` - Crear libros
 
-### Matches
-- `GET /api/matches` - Obtener lista de libros guardados
-- `DELETE /api/matches/:id` - Eliminar un libro de la lista de guardados
+
+### LIST
+
 
 ## 📊 Modelos de Datos
 
@@ -221,11 +218,11 @@ Para mantener un desarrollo organizado y colaborativo, seguimos el siguiente flu
 
 ### Ramas de Características
 Para nuevas funcionalidades:
-- `nombrePersona/nombre-funcionalidad`
+- `nombre-funcionalidadNombre-Persona`
 
 ### Ramas de Corrección
 Para corrección de errores:
-- `bugfix/descripcion-error`
+- `bugfixDescripcion-error`
 
 ### Proceso de Pull Request
 1. Crea tu rama desde `develop`
