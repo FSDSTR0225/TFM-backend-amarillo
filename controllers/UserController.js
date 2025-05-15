@@ -1,14 +1,15 @@
 
 const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
+/*
+* registro de un usuario
+* POST /users/register 
+*/
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
-const User = require('../models/UserModel');
-const jwt = require("jsonwebtoken");
-
     if (!name || !email || !password) {
       return res.status(400).json({
         status: 400,
@@ -43,6 +44,8 @@ const jwt = require("jsonwebtoken");
     res.status(500).json({ msg: "Error del servidor" });
   }
 };
+
+
 /*
  * login de un usuario
  * POST /users/login
@@ -54,13 +57,12 @@ const loginUser = async (req, res) => {
 
 
 
-  if (!user || user.password !== password) {
-    return res.status(401).json({ message: "Invalid email or password" });
-  }
-
-  // if (!user || bcrypt.compareSync(password, user.password)) {
+  // if (!user || user.password !== password) {
   //   return res.status(401).json({ message: "Invalid email or password" });
   // }
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
 
   const token = jwt.sign(
     {
@@ -90,9 +92,8 @@ const loginUser = async (req, res) => {
 
 module.exports = {
   register,
+  loginUser
 };
 
-  // getUser,
-    loginUser
-  };
+
 

@@ -1,23 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { body } = require('express-validator');
+const { body ,check } = require('express-validator');
 
 const {
 
   //getUsers,
   register,
+  loginUser,
 } = require("../controllers/UserController");
-const { check } = require("express-validator");
 const validationChecker = require("../middlewares/validationChecker");
-//si necesitan usar body
-router.use(express.json());
-/*
-
-    // getUser,
-    loginUser,
-  } = require('../controllers/UserController');
-const validationChecker = require('../middlewares/validationChecker');
-const { getAuthUser } = require('../middlewares/auth');
+const { getAuthUser } = require("../middlewares/auth");
 
 
 
@@ -25,11 +17,7 @@ const { getAuthUser } = require('../middlewares/auth');
 router.use(express.json());
 
 
-
- // GET /usuarios - Obtener todos los usuarios
-router.get('/', getUsers);
- 
- */
+// POST /users/register - registro de un usuario
 router.post(
   "/register",
   [
@@ -38,10 +26,12 @@ router.post(
     check("email", "El correo debe ser válido").isEmail(),
     check(
       "password",
-      "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número"
+      "La contraseña debe tener al menos 6 caracteres, una mayúscula, una minúscula , un número y una caracter especial"
     )
-      .isLength({ min: 8 })
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
+      .isLength({ min: 6 })
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .matches(/[0-9]/),
   ],
   validationChecker, // Middleware que devuelve errores si los hay
   register // Controlador encargado de registrar al usuario
@@ -59,7 +49,9 @@ router.post('/login',
     .matches(/[0-9]/)
     .withMessage('La contraseña debe contener al menos un número')
     .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage('La contraseña debe contener al menos un carácter especial'),validationChecker
+    .withMessage('La contraseña debe contener al menos un carácter especial')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+    .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula'),validationChecker
 ]
     ,loginUser )
 //solo puede estrar si esta logueado
