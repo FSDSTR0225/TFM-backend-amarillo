@@ -1,8 +1,4 @@
-const Book = require('../models/BookModel');
-
-
-
-
+const Book = require("../models/BookModel");
 
 /*
  * Obtener todas los libros
@@ -11,8 +7,6 @@ const Book = require('../models/BookModel');
 
 const getBook = async (req, res) => {
   try {
-    
-
     const books = await Book.find(); // Obtén todos los libros
 
     if (!books || books.length === 0) {
@@ -25,8 +19,6 @@ const getBook = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
-
-
 
 /*
  * Crear un libro
@@ -68,17 +60,16 @@ const getBookID = async (req, res) => {
 const addReview = async (req, res) => {
   try {
     const bookId = req.params.id;
-     console.log("Datos de la reseña:", req.body);
-    const {  text, rating } = req.body;
+    console.log("Datos de la reseña:", req.body);
+    const { text, rating } = req.body;
 
-   
     // Buscar el libro por ID
     const book = await Book.findById(bookId);
     if (!book) {
       return res.status(404).json({ message: "Libro no encontrado" });
     }
-userId = req.authUser;
-console.log("ID del usuario:", userId.id);
+    userId = req.authUser;
+    console.log("ID del usuario:", userId.id);
     // // Verificar si el usuario ya ha dejado una reseña (opcional)
     // const existingReview = book.review.find(r => r.user.toString() === user);
     // if (existingReview) {
@@ -86,14 +77,14 @@ console.log("ID del usuario:", userId.id);
     // }
 
     // Añadir la reseña al array de reviews del libro
-    book.review.push({ user:userId.id, text, rating });
-    
+    book.review.push({ user: userId.id, text, rating });
+
     // Guardar el libro actualizado
     const updatedBook = await book.save();
 
-    res.status(200).json({ 
-      message: "Reseña añadida correctamente", 
-      book: updatedBook 
+    res.status(200).json({
+      message: "Reseña añadida correctamente",
+      book: updatedBook,
     });
   } catch (error) {
     console.error("Error al añadir la reseña:", error);
@@ -102,9 +93,8 @@ console.log("ID del usuario:", userId.id);
 };
 
 module.exports = {
-   getBook,
+  getBook,
   createBook,
   getBookID,
-  addReview
-  };
-  
+  addReview,
+};

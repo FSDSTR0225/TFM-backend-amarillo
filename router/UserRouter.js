@@ -5,6 +5,7 @@ const { body } = require('express-validator');
 const {
     // getUser,
     loginUser,
+    getUserID
   } = require('../controllers/UserController');
 const validationChecker = require('../middlewares/validationChecker');
 const { getAuthUser } = require('../middlewares/auth');
@@ -36,5 +37,8 @@ router.use(getAuthUser);
 //prueba
 // router.get('/me',getUser);
 
+
+//GET /users/:id
+ router.get('/:id',getUserID);
 
 module.exports = router;

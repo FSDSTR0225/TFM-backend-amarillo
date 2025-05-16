@@ -33,7 +33,9 @@ router.use(getAuthUser);
 
 // GET /books - Obtener todos los libros
  router.get('/', getBook);
+// GET /books/:id - Obtener un libro por ID
  router.get('/:id', getBookID);
+// PATCH /books/review/:id - Agregar una reseña a un libro
  router.patch('/review/:id', addReview);
 
 
