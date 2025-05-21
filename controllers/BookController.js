@@ -11,8 +11,6 @@ const Book = require('../models/BookModel');
 
 const getBook = async (req, res) => {
   try {
-    
-
     const books = await Book.find(); // Obtén todos los libros
 
     if (!books || books.length === 0) {
@@ -25,8 +23,6 @@ const getBook = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
-
-
 
 /*
  * Crear un libro
