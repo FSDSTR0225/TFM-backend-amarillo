@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "inport": "node scripts/inportBD.js"
   },
   "repository": {
@@ -18,11 +18,8 @@
   "homepage": "https://github.com/FSDSTR0225/TFM-backend-amarillo#readme",
   "description": "",
   "dependencies": {
-
     "bcrypt": "^6.0.0",
-
     "bcryptjs": "^3.0.2",
-
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -35,6 +32,9 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "mongodb-memory-server": "^10.1.4",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1",
+    "vitest": "^3.1.4"
   }
 }
