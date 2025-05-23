@@ -71,7 +71,8 @@ const addReview = async (req, res) => {
     if (!book) {
       return res.status(404).json({ message: "Libro no encontrado" });
     }
-    userId = req.authUser;
+    userId = req.user;
+
     console.log("ID del usuario:", userId.id);
 
     

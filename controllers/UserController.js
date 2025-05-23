@@ -95,6 +95,7 @@ const getUserID = async (req, res) => {
 
 module.exports = {
     loginUser,
+    register,
     getUserID
   };
   

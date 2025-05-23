@@ -5,11 +5,14 @@ const { getAuthUser } = require("../middlewares/auth");
 
 
 const {
-  getBook,
+   getBook,
   createBook,
   getBookID,
   addReview,
-  deleteReview
+  deleteReview,
+  likeBook,
+  dislikeBook,
+  voteBook,
 } = require("../controllers/BookController");
 const validationChecker = require("../middlewares/validationChecker");
 
@@ -46,6 +49,8 @@ router.get("/", getBook);
 
 // GET /books/:id - Obtener un libro por ID
 router.get("/:id", getBookID);
+
+
 // PATCH /books/review/:id - Agregar una reseña a un libro
 router.patch("/review/:id",
   [
