@@ -3,13 +3,12 @@ const router = express.Router();
 const { body ,check } = require('express-validator');
 
 const {
+    loginUser,
+    getUserID
+  } = require('../controllers/UserController');
+const validationChecker = require('../middlewares/validationChecker');
+const { getAuthUser } = require('../middlewares/auth');
 
-  //getUsers,
-  register,
-  loginUser,
-} = require("../controllers/UserController");
-const validationChecker = require("../middlewares/validationChecker");
-const { getAuthUser } = require("../middlewares/auth");
 
 
 
@@ -57,8 +56,8 @@ router.post('/login',
 //solo puede estrar si esta logueado
 router.use(getAuthUser);
 
-//prueba
-// router.get('/me',getUser);
-
+//GET /users/:id
+ router.get('/:id',getUserID);
 
 module.exports = router;
+
