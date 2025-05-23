@@ -27,6 +27,7 @@ const loginUser = async (req, res) => {
    // { expiresIn: '3m' } // Cambia el tiempo de expiración 
   );
   const userData = {
+    id: user._id,
     name: user.name,
     email: user.email,
   };
