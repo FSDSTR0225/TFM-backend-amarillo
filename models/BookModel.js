@@ -15,6 +15,15 @@ const bookSchema = new Schema(
       type: Number,
       default: 0,
     },
+
+    //CAMPO PARA VOTOS DE LIKE Y DISLIKE
+    votes: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        vote: { type: String, enum: ["like", "dislike"] },
+      },
+    ],
+    //FIN DE CAMPO PARA VOTOS DE LIKE Y DISLIKE
     state: {
       type: Number,
       default: 0, // Este campo se usa para el porcentaje de progreso
@@ -50,7 +59,8 @@ const bookSchema = new Schema(
     },
     author: {
       type: [String],
-    },imgBook: {
+    },
+    imgBook: {
       type: String,
     },
   },
@@ -60,4 +70,3 @@ const bookSchema = new Schema(
 );
 
 module.exports = mongoose.model("Book", bookSchema);
-
