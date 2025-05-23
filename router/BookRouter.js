@@ -3,6 +3,7 @@ const router = express.Router();
 const { body } = require("express-validator");
 const { getAuthUser } = require("../middlewares/auth");
 
+
 const {
   getBook,
   createBook,
@@ -12,10 +13,12 @@ const {
 } = require("../controllers/BookController");
 const validationChecker = require("../middlewares/validationChecker");
 
+
 //si necesitan usar body
 router.use(express.json());
 
 // POST /books - crear libros
+
 router.post("/",
   [
     body("name").isString().withMessage("El nombre es obligatorio"),
@@ -32,7 +35,7 @@ router.post("/",
       .withMessage("la imagen es obligatorio y tiene que ser una url"),
     validationChecker,
   ],
-  createBook
+   createBook
 );
 
 //solo puede estrar si esta logueado
@@ -40,6 +43,7 @@ router.use(getAuthUser);
 
 // GET /books - Obtener todos los libros
 router.get("/", getBook);
+
 // GET /books/:id - Obtener un libro por ID
 router.get("/:id", getBookID);
 // PATCH /books/review/:id - Agregar una reseña a un libro
@@ -65,5 +69,15 @@ router.patch("/review/:id",
 // DELETE /books/:id?reviewId=id - Eliminar un libro por ID
 router.delete("/review/:id",deleteReview);
 
+
+// POST /books/:id/like - Dar like a un libro
+router.post("/:id/like", likeBook);
+
+// POST /books/:id/dislike - Dar dislike a un libro
+router.post("/:id/dislike", dislikeBook);
+
+
+// POST /books/:id/vote
+router.post("/:id/vote", voteBook);
 
 module.exports = router;
