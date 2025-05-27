@@ -92,11 +92,25 @@ const getUserID = async (req, res) => {
 };
 
 
+/**
+ * sacrar todos los usarios
+ * GET /users
+ */
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.error("Error al obtener los usuarios:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+}
 
 module.exports = {
     loginUser,
     register,
-    getUserID
+    getUserID,
+    getAllUsers
   };
   
 
