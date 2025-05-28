@@ -2,7 +2,7 @@ import {describe,test,expect,beforeAll,afterAll,beforeEach,} from "vitest";
 import { MongoMemoryServer } from "mongodb-memory-server";
 const request = require("supertest");
 import mongoose from "mongoose";
-import app from "../index";
+import app from "../app";
 
 describe("User Routes Integration Tests", () => {
   let mongoServer;
@@ -31,9 +31,6 @@ describe("User Routes Integration Tests", () => {
     await mongoose.connection.dropDatabase();
   });
 
-  // Test del register  de usuario
-  describe("POST /users/register", () => {});
-
   // Test del login  de usuario
   describe("POST /users/login", () => {
     test("Iniciar sesion", async () => {
@@ -54,8 +51,9 @@ describe("User Routes Integration Tests", () => {
     test("Iniciar sesion con credenciales incorrectas", async () => {
       const res = await request(app).post("/users/login").send({
         email: "test@test.com",
-        password: "password1@",
+        password: "Password1@",
       });
+      console.log(res.body);
     expect(res.statusCode).toBe(401);
     expect(res.body).toHaveProperty("message");
     });
