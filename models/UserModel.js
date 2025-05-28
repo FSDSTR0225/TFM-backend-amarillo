@@ -35,16 +35,11 @@ const UserSchema = new mongoose.Schema(
     ],
     preferences: [
       {
-        genres: [String], // ✅ esto debe ser un array de strings
-        languages: [String], // ✅ esto también
+        genres: [String],
+        languages: [String],
       },
     ],
-    preferences: [
-      {
-        genres: [String], // ✅ esto debe ser un array de strings
-        languages: [String], // ✅ esto también
-      },
-    ],
+
     like: [
       {
         type: mongoose.Schema.Types.ObjectId,
