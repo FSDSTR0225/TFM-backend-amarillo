@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "inport": "node scripts/inportBD.js"
+    "inport": "node scripts/inportBD.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -18,11 +19,8 @@
   "homepage": "https://github.com/FSDSTR0225/TFM-backend-amarillo#readme",
   "description": "",
   "dependencies": {
-
     "bcrypt": "^6.0.0",
-
     "bcryptjs": "^3.0.2",
-
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",

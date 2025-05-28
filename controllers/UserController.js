@@ -1,12 +1,11 @@
-
-const User = require('../models/UserModel');
+const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 /*
-* registro de un usuario
-* POST /users/register 
-*/
+ * registro de un usuario
+ * POST /users/register
+ */
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -45,11 +44,10 @@ const register = async (req, res) => {
   }
 };
 
-
 /*
  * login de un usuario
  * POST /users/login
-*/
+ */
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -64,24 +62,27 @@ const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
     },
-    process.env.JWT_SECRET,
-   // { expiresIn: '3m' } // Cambia el tiempo de expiración 
+    process.env.JWT_SECRET
+    // { expiresIn: '3m' } // Cambia el tiempo de expiración
   );
   const userData = {
     id: user._id,
     name: user.name,
     email: user.email,
   };
-  res.json({msg: "Task updated", access_token: token, token_type: "Bearer" ,user:userData });
+  res.json({
+    msg: "Task updated",
+    access_token: token,
+    token_type: "Bearer",
+    user: userData,
+  });
 };
-
 
 /*
  * sarcar un usuario por id
  * GET /users/:id
-*/
+ */
 const getUserID = async (req, res) => {
-
   const userId = req.params.id;
 
   const user = await User.findById(userId);
@@ -90,16 +91,94 @@ const getUserID = async (req, res) => {
   }
   res.json(user);
 };
+/*
+ * Actualizar perfil de usuario
+ * PUT /users/profile
+ */
+const updateUserProfile = async (req, res) => {
+  try {
+    console.log(" Usuario autenticado:", req.user);
+    console.log(" Body recibido:", req.body);
+    console.log("Archivo recibido:", req.file);
 
+    const userId = req.user.id;
 
+    const {
+      name,
+      profilePicture,
+      genres,
+      languages,
+      currentPassword, // línea agregada para contraseña actual
+      newPassword, // línea agregada para nueva contraseña
+    } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log(" Usuario no encontrado con ID:", userId);
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+    if (req.file) {
+      console.log(" Asignando nueva foto:", req.file.filename);
+      user.profilePicture = `/uploads/${req.file.filename}`;
+    }
+    // Manejo de cambio de contraseña (bloque agregado)
+    if (newPassword) {
+      if (!currentPassword) {
+        console.log(" Falta contraseña actual");
+        return res.status(400).json({ error: "Falta la contraseña actual." });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        console.log(" Contraseña actual incorrecta");
+        return res
+          .status(401)
+          .json({ error: "La contraseña actual es incorrecta." });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    if (name) user.name = name;
+    if (profilePicture) user.profilePicture = profilePicture;
+
+    if (genres || languages) {
+      if (!Array.isArray(user.preferences) || user.preferences.length === 0) {
+        user.preferences = [{}];
+      }
+
+      try {
+        const parsedGenres =
+          typeof genres === "string" ? JSON.parse(genres) : genres;
+        const parsedLanguages =
+          typeof languages === "string" ? JSON.parse(languages) : languages;
+
+        if (parsedGenres) user.preferences[0].genres = parsedGenres;
+        if (parsedLanguages) user.preferences[0].languages = parsedLanguages;
+      } catch (err) {
+        console.error("Error parseando géneros o idiomas:", err);
+        return res
+          .status(400)
+          .json({ error: "Formato inválido para géneros o idiomas." });
+      }
+    }
+
+    await user.save();
+    console.log(" Usuario actualizado con éxito");
+
+    return res
+      .status(200)
+      .json({ message: "Perfil actualizado correctamente.", user });
+  } catch (error) {
+    console.error("Error actualizando perfil:", error);
+    return res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
 
 module.exports = {
-    loginUser,
-    register,
-    getUserID
-  };
-  
-
-
-
-
+  loginUser,
+  register,
+  getUserID,
+  updateUserProfile,
+};
