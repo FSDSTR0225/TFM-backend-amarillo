@@ -1,42 +1,76 @@
-const Message = require('../models/MessageModel'); // Ajusta ruta si es necesario
-
+const Message = require("../models/MessageModel"); // Ajusta ruta si es necesario
+const RoomModel = require("../models/RoomModel");
 
 function socketHandler(io) {
-
-  io.on('connection', async (socket)  => {
+  io.on("connection", async (socket) => {
     console.log(`🔌 Usuario conectado: ${socket.id}`);
 
-     try {
-      const previousMessages = await Message.find()
-        .sort({ createdAt: 1 }) // Orden cronológico ascendente
-        .limit(50);
+    // Unirse a la sala
+    socket.on("room join", async (msg) => {
+      try {
+        let room;
+        if (msg.idroom) {
+          room = await RoomModel.findById(msg.idroom);
+        } else {
+          //asegura que el array contenga todos los elementos listados, en cualquier orden
+          room = await RoomModel.findOne({
+            users: { $all: [msg.userid1, msg.userid2] },
+          });
+        }
 
-      socket.emit('chat history', previousMessages);
-    } catch (error) {
-      console.error('❌ Error al cargar mensajes anteriores:', error);
-    }
+        if (!room) {
+          room = new RoomModel({
+            users: [msg.userid1, msg.userid2],
+          });
+          await room.save();
+          console.log("🆕 Sala creada:", room);
+        }
+        socket.join(room._id.toString());
+        socket.roomId = room._id.toString();
+        socket.emit("room joined", { roomId: room._id.toString() });
+      } catch (error) {
+        console.error("❌ Error al crear/cargar sala o historial:", error);
+      }
+    });
+    socket.on("chat history", async (msg) => {
+      // Cargar mensajes anteriores
+      const previousMessages = await RoomModel.findById(msg.roomId).populate({
+        path: "messages",
+        options: {
+          sort: { createdAt: 1 }, // ordenar mensajes antiguos a nuevos
+          limit: 50, // limitar a 50 mensajes
+        },
+      });
+      console.log("Historial de mensajes:", previousMessages);
+     
+      
 
-    // Escuchar eventos
-    socket.on('chat message', async  (msg) => {
-         const messageWithTime = {
-      ...msg,
-    };
+      // Enviar historial al cliente
+      socket.emit("chat history", previousMessages.messages);
+    });
 
-     try {
-        await Message.create({
+    // Enviar mesaje
+    socket.on("chat message", async (msg) => {
+      try {
+        const messageNew = await Message.create({
           userID: msg.id,
           user: msg.sender,
           text: msg.text,
         });
-        console.log('💾 Mensaje guardado en MongoDB');
+
+        console.log("id room enviar", msg.roomId);
+        await RoomModel.findByIdAndUpdate(msg.roomId, {
+          $push: { messages: messageNew._id },
+        });
+
+        io.emit("chat message", messageNew);
+        console.log("📩 Mensaje enviado:", messageNew.text);
       } catch (error) {
-        console.error('❌ Error al guardar mensaje:', error);
+        console.error("❌ Error al enviar mensaje:", error);
       }
-      console.log(`📩 Mensaje recibido: ${messageWithTime}`);
-      io.emit('chat message', messageWithTime); // Reenviar a todos los clientes
     });
 
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       console.log(`❌ Usuario desconectado: ${socket.id}`);
     });
   });
