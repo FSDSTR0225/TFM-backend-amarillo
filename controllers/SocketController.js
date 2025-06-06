@@ -32,6 +32,7 @@ function socketHandler(io) {
         console.error("❌ Error al crear/cargar sala o historial:", error);
       }
     });
+    // Cargar mensajes anteriores al unirse a la sala
     socket.on("chat history", async (msg) => {
       // Cargar mensajes anteriores
       const previousMessages = await RoomModel.findById(msg.roomId).populate({
@@ -42,8 +43,6 @@ function socketHandler(io) {
         },
       });
       console.log("Historial de mensajes:", previousMessages);
-     
-      
 
       // Enviar historial al cliente
       socket.emit("chat history", previousMessages.messages);
@@ -67,6 +66,37 @@ function socketHandler(io) {
         console.log("📩 Mensaje enviado:", messageNew.text);
       } catch (error) {
         console.error("❌ Error al enviar mensaje:", error);
+      }
+    });
+
+    // Eliminar mensaje
+    socket.on("delete message", async (msg) => {
+      try {
+        // Eliminar la referencia al mensaje en el array messages de la sala
+        const result = await RoomModel.findOneAndUpdate(
+          { _id: msg.roomId },
+          {
+            $pull: { messages: msg.id },
+          }
+        );
+
+        if (!result) {
+          console.error("❌ ROOM no encontrado:", msg.roomId);
+          return;
+        }
+
+        // Eliminar el mensaje de la colección Message
+        const message = await Message.findByIdAndDelete(msg.id);
+        if (!message) {
+          console.error("❌ Mensaje no encontrado:", msg.id);
+          return;
+        }
+
+        console.log("🗑️ Mensaje eliminado:", message.text);
+        // Notificar a los usuarios de la sala que el mensaje fue eliminado
+        socket.to(msg.roomId).emit("message deleted", { id: msg.id });
+      } catch (error) {
+        console.error("❌ Error al eliminar mensaje:", error);
       }
     });
 
