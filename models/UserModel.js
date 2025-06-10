@@ -42,7 +42,13 @@ const UserSchema = new mongoose.Schema(
             language: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
             total: Number,
           },
-        ], //ponerlo en Book
+        ],
+        author: [
+          {
+            author: { type: mongoose.Schema.Types.ObjectId, ref: "author" },
+            total: Number,
+          },
+        ]
       },
     ],
     like: [

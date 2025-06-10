@@ -1,4 +1,5 @@
 const Book = require("../models/BookModel");
+const User = require("../models/UserModel");
 
 /*
  * Obtener todas los libros
@@ -28,8 +29,7 @@ const createBook = async (req, res) => {
   try {
     const { name } = req.body;
 
-    const existingBook = await Book.findOne({  name  });
-
+    const existingBook = await Book.findOne({ name });
 
     if (existingBook) {
       return res.status(409).json({ message: "El libro ya existe" });
@@ -75,7 +75,6 @@ const addReview = async (req, res) => {
 
     console.log("ID del usuario:", userId.id);
 
-    
     // // Verificar si el usuario ya ha dejado una reseña (opcional)
     // const existingReview = book.review.find(r => r.user.toString() === user);
     // if (existingReview) {
@@ -95,10 +94,10 @@ const addReview = async (req, res) => {
   } catch (error) {
     console.error("Error al añadir la reseña:", error);
     res.status(500).json({ message: "Error del servidor" });
-    }
-  }; 
-  
- /*
+  }
+};
+
+/*
  * Dar like a un libro
  * POST /books/:id/like
  */
@@ -109,8 +108,21 @@ const likeBook = async (req, res) => {
     if (!book) return res.status(404).json({ message: "Libro no encontrado" });
 
     book.like += 1;
-    await book.save();
 
+    const userId = req.user;
+
+    const user = new User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    user.preferences.push({
+      genres: book.genre,
+      languages: book.language,
+      authors: book.author,
+    });
+    await user.save();
+    await book.save();
     res.status(200).json({ message: "Like guardado", likes: book.like });
   } catch (error) {
     console.error("Error al dar like:", error);
@@ -131,13 +143,14 @@ const dislikeBook = async (req, res) => {
     book.dislike += 1;
     await book.save();
 
-    res.status(200).json({ message: "Dislike guardado", dislikes: book.dislike });
+    res
+      .status(200)
+      .json({ message: "Dislike guardado", dislikes: book.dislike });
   } catch (error) {
     console.error("Error al dar dislike:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
-
 
 /*
  * Eliminar una reseña a un libro
@@ -146,48 +159,18 @@ const dislikeBook = async (req, res) => {
 const deleteReview = async (req, res) => {
   try {
     const bookId = req.params.id;
-    // const userId = req.authUser.id;
     const reviewId = req.query.reviewId;
-
 
     const resultado = await Book.updateOne(
       { _id: bookId },
       { $pull: { review: { _id: reviewId } } }
     );
-    
+
     if (resultado.modifiedCount > 0) {
       res.status(200).json({ message: "Reseña eliminada correctamente" });
     } else {
       res.status(404).json({ message: "No se encontró la reseña o el libro" });
     }
-
-    // // Buscar el libro por ID
-    // const book = await Book.findById(bookId);
-    // if (!book) {
-    //   return res.status(404).json({ message: "Libro no encontrado" });
-    // }
-
-    // // Buscar la reseña a eliminar
-    // const review = book.review.find(r => r._id.toString() === reviewId);
-    // if (!review) {
-    //   return res.status(404).json({ message: "Reseña no encontrada" });
-    // }
-
-    // // Verificar si el usuario es el autor de la reseña
-    // if (review.user.toString() !== userId) {
-    //   return res.status(403).json({ message: "No tienes permiso para eliminar esta reseña" });
-    // }
-
-    // // Eliminar la reseña del array de reviews del libro
-    // book.review.pull(review);
-
-    // // Guardar el libro actualizado
-    // const updatedBook = await book.save();
-
-    // res.status(200).json({
-    //   message: "Reseña eliminada correctamente",
-    //   book: updatedBook,
-    // });
   } catch (error) {
     console.error("Error al eliminar la reseña:", error);
     res.status(500).json({ message: "Error del servidor" });
@@ -197,7 +180,7 @@ const deleteReview = async (req, res) => {
 /*
  * FUNCIÓN DE VOTOS
  * POST  /books/:id/vote
-*/
+ */
 const voteBook = async (req, res) => {
   try {
     const { id } = req.params;
@@ -233,7 +216,6 @@ const voteBook = async (req, res) => {
   }
 };
 
-
 module.exports = {
   getBook,
   createBook,
@@ -243,5 +225,4 @@ module.exports = {
   likeBook,
   dislikeBook,
   voteBook,
-
 };
