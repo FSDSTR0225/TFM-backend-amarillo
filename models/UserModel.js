@@ -43,7 +43,7 @@ const UserSchema = new mongoose.Schema(
             total: Number,
           },
         ],
-        author: [
+        authors: [
           {
             author: { type: mongoose.Schema.Types.ObjectId, ref: "author" },
             total: Number,
