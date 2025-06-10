@@ -109,28 +109,6 @@ const likeBook = async (req, res) => {
 
     book.like += 1;
 
-    const userId = req.user.id;
-    console.log("ID del usuario:", userId);
-    const user = await User.findById(userId);
-    console.log("Usuario encontrado:", user);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-    const exists = user.preferences?.some(pref =>
-      pref.genres === book.genre &&
-      pref.languages === book.language &&
-      pref.authors === book.author
-    );
-    console.log(exists);
-    // if (!exists) {
-    user.preferences.push({
-      genres: book.genre,
-      languages: book.language,
-      authors: book.author,
-    });
-    await user.save();
-    // }
-    
     await book.save();
     res.status(200).json({ message: "Like guardado", likes: book.like });
   } catch (error) {
@@ -215,6 +193,42 @@ const voteBook = async (req, res) => {
 
     book.like = likeCount;
     book.dislike = dislikeCount;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    if (vote === "like") {
+      const exists = user.preferences.some(
+        (pref) =>
+          pref.genres.includes(book.genre) &&
+          pref.languages.includes(book.language) &&
+          pref.authors.includes(book.author)
+      );
+      console.log("datos ", book.genre, book.language, book.author);
+      console.log("existe ", exists);
+      if (!exists) {
+        user.preferences.push({
+          genres: book.genre,
+          languages: book.language,
+          authors: book.author,
+        });
+        await user.save();
+      }
+    } else {
+      user.preferences = user.preferences.filter(
+        (pref) =>
+          !(
+            pref.genres.includes(book.genre) &&
+            pref.languages.includes(book.language) &&
+            pref.authors.includes(book.author)
+          )
+      );
+
+      // Guardar los cambios en la base de datos
+      await user.save();
+    }
 
     await book.save();
 

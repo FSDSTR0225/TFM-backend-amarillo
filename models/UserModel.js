@@ -33,22 +33,28 @@ const UserSchema = new mongoose.Schema(
       {
         genres: [
           {
-            genre: { type: mongoose.Schema.Types.ObjectId, ref: "Genre" },
-            total: Number,
+            type: [String], // Array of strings for genres
+            default: [],
+            // genre: { type: mongoose.Schema.Types.ObjectId, ref: "Genre" },
+            // total: Number,
           },
         ],
         languages: [
           {
-            language: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
-            total: Number,
+            type: [String], // Array of strings for genres
+            default: [],
+            // language: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
+            // total: Number,
           },
         ],
         authors: [
           {
-            author: { type: mongoose.Schema.Types.ObjectId, ref: "author" },
-            total: Number,
+            type: [String], // Array of strings for genres
+            default: [],
+            // author: { type: mongoose.Schema.Types.ObjectId, ref: "author" },
+            // total: Number,
           },
-        ]
+        ],
       },
     ],
     like: [
