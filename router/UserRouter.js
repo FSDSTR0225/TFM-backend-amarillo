@@ -4,6 +4,7 @@ const { body, check } = require("express-validator");
 const upload = require("../middlewares/uploadMiddleware");
 
 const {
+
   loginUser,
   getUserID,
   register,
@@ -11,6 +12,18 @@ const {
 } = require("../controllers/UserController");
 const validationChecker = require("../middlewares/validationChecker");
 const { getAuthUser } = require("../middlewares/auth");
+
+    loginUser,
+    getUserID,
+    register,
+    getAllUsers
+  } = require('../controllers/UserController');
+const validationChecker = require('../middlewares/validationChecker');
+const { getAuthUser } = require('../middlewares/auth');
+
+
+
+
 
 //si necesitan usar body
 router.use(express.json());
@@ -62,11 +75,18 @@ router.use(getAuthUser);
 //GET /users/:id
 router.get("/:id", getUserID);
 
+
 // PUT /users/profile - actualizar perfil de usuario
 router.put(
   "/profile",
   upload.single("photo"), // Middleware de multer para 1 archivo con campo 'photo'
   updateUserProfile
 );
+
+// GET /users
+ router.get('/',getAllUsers);
+
+module.exports = router;
+
 
 module.exports = router;
