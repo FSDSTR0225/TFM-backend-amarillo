@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
+const { get } = require("mongoose");
 
 /*
  * registro de un usuario
@@ -105,7 +106,6 @@ const updateUserProfile = async (req, res) => {
 
     const userId = req.user.id;
 
-
     const {
       name,
       profilePicture,
@@ -170,27 +170,10 @@ const updateUserProfile = async (req, res) => {
       user.password = await bcrypt.hash(newPassword, salt);
     }
 
-/**
- * sacrar todos los usarios
- * GET /users
- */
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    console.error("Error al obtener los usuarios:", error);
-    res.status(500).json({ message: "Error del servidor" });
-  }
-}
-
-module.exports = {
-    loginUser,
-    register,
-    getUserID,
-    getAllUsers
-  };
-  
+    /**
+     * sacrar todos los usarios
+     * GET /users
+     */
 
     if (name) user.name = name;
     if (profilePicture) user.profilePicture = profilePicture;
@@ -228,9 +211,20 @@ module.exports = {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.error("Error al obtener los usuarios:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
 module.exports = {
   loginUser,
   register,
   getUserID,
   updateUserProfile,
+  getAllUsers,
 };
