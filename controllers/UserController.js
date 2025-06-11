@@ -1,6 +1,8 @@
 const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 
 /*
  * registro de un usuario
@@ -118,9 +120,36 @@ const updateUserProfile = async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado." });
     }
     if (req.file) {
-      console.log(" Asignando nueva foto:", req.file.filename);
-      user.profilePicture = `/uploads/${req.file.filename}`;
+      console.log("Subiendo imagen a Cloudinary...");
+
+      // Convierte el archivo buffer en un stream y súbelo a Cloudinary
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "profile_pictures" }, // Puedes cambiar el folder
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      console.log("Imagen subida con éxito:", result.secure_url);
+
+      const resizedUrl = result.secure_url.replace(
+        "/upload/",
+        "/upload/w_100,h_100,c_fill/"
+      );
+
+      user.profilePicture = result.secure_url; // Guarda la URL en la base de datos
     }
+
     // Manejo de cambio de contraseña (bloque agregado)
     if (newPassword) {
       if (!currentPassword) {
