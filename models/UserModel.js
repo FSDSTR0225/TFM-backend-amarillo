@@ -29,34 +29,20 @@ const UserSchema = new mongoose.Schema(
         status: { enum: ["read", "reading", "abandoned"] },
       },
     ],
-    preferences: [
-      {
-        genres: [
-          {
-            type: [String], // Array of strings for genres
-            default: [],
-            // genre: { type: mongoose.Schema.Types.ObjectId, ref: "Genre" },
-            // total: Number,
-          },
-        ],
-        languages: [
-          {
-            type: [String], // Array of strings for genres
-            default: [],
-            // language: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
-            // total: Number,
-          },
-        ],
-        authors: [
-          {
-            type: [String], // Array of strings for genres
-            default: [],
-            // author: { type: mongoose.Schema.Types.ObjectId, ref: "author" },
-            // total: Number,
-          },
-        ],
-      },
-    ],
+    preferences: {
+    authors: [{
+      type: String,
+      
+    }],
+    genres: [{
+      type: String,
+      
+     }],
+    languages: [{
+      type: String,
+      
+    }]
+  },
     like: [
       {
         type: mongoose.Schema.Types.ObjectId,
