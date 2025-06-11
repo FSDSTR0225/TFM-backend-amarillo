@@ -6,7 +6,6 @@ const { getAuthUser } = require("../middlewares/auth");
 const { getBook, createBook, getBookID, addReview, deleteReview } = require("../controllers/BookController");
 const validationChecker = require("../middlewares/validationChecker");
 
-
 //si necesitan usar body
 router.use(express.json());
 
@@ -37,7 +36,6 @@ router.post("/:id/like", likeBook);
 
 // POST /books/:id/dislike - Dar dislike a un libro
 router.post("/:id/dislike", dislikeBook);
-
 
 // POST /books/:id/vote
 router.post("/:id/vote", voteBook);
