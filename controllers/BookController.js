@@ -7,7 +7,27 @@ const Book = require("../models/BookModel");
 
 const getBook = async (req, res) => {
   try {
-    const books = await Book.find(); // Obtén todos los libros
+    const query = {};
+
+    // Aplicar filtros solo si vienen en la query
+    if (req.query.name) {
+      query.name = { $regex: req.query.name, $options: "i" };
+    }
+
+    if (req.query.genre) {
+      query.genre = { $in: req.query.genre.split(",") };
+    }
+
+    if (req.query.language) {
+      query.language = { $regex: req.query.language, $options: "i" };
+    }
+
+    if (req.query.author) {
+      query.author = { $in: req.query.author.split(",") };
+    }
+
+    // Buscar libros con o sin filtros
+    const books = await Book.find(query);
 
     if (!books || books.length === 0) {
       return res.status(404).json({ message: "No se encontraron libros" });
@@ -15,7 +35,55 @@ const getBook = async (req, res) => {
 
     res.status(200).json(books);
   } catch (error) {
-    console.error("Error al obtener el libro:", error);
+    console.error("Error al obtener los libros:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+// Para obtener géneros únicos
+const getGenres = async (req, res) => {
+  try {
+    const genres = await Book.distinct("genre");
+    res.json(genres.flat()); // Aplana arrays porque genre es un array en cada libro
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener géneros" });
+  }
+};
+
+// Para obtener autores únicos
+const getAuthors = async (req, res) => {
+  try {
+    const authors = await Book.distinct("author");
+    res.json(authors.flat()); // Aplana arrays porque author es un array en cada libro
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener autores" });
+  }
+};
+
+// FUNCIÓN: Para obtener idiomas únicos
+const getLanguages = async (req, res) => {
+  try {
+    const languages = await Book.distinct("language");
+    res.json(languages); // Los idiomas suelen ser cadenas simples, no arrays anidados, por lo que no necesita .flat()
+  } catch (error) {
+    console.error("Error al obtener idiomas:", error); // Añadida consola para depuración
+    res.status(500).json({ message: "Error al obtener idiomas" });
+  }
+};
+
+// GET /books/filters - Obtener todos los filtros posibles (géneros, idiomas, autores únicos).
+const getBookFilters = async (req, res) => {
+  try {
+    // Realizamos las peticiones en paralelo para optimizar el rendimiento.
+    const [genres, languages, authors] = await Promise.all([
+      Book.distinct("genre"),
+      Book.distinct("language"), // Usamos distinct para idiomas aquí
+      Book.distinct("author"),
+    ]);
+
+    res.status(200).json({ genres: genres.flat(), languages, authors: authors.flat() });
+  } catch (error) {
+    console.error("Error al obtener filtros:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
@@ -28,8 +96,7 @@ const createBook = async (req, res) => {
   try {
     const { name } = req.body;
 
-    const existingBook = await Book.findOne({  name  });
-
+    const existingBook = await Book.findOne({ name });
 
     if (existingBook) {
       return res.status(409).json({ message: "El libro ya existe" });
@@ -71,10 +138,10 @@ const addReview = async (req, res) => {
     if (!book) {
       return res.status(404).json({ message: "Libro no encontrado" });
     }
-    userId = req.authUser;
+    userId = req.user;
+
     console.log("ID del usuario:", userId.id);
 
-    
     // // Verificar si el usuario ya ha dejado una reseña (opcional)
     // const existingReview = book.review.find(r => r.user.toString() === user);
     // if (existingReview) {
@@ -94,10 +161,10 @@ const addReview = async (req, res) => {
   } catch (error) {
     console.error("Error al añadir la reseña:", error);
     res.status(500).json({ message: "Error del servidor" });
-    }
-  }; 
-  
- /*
+  }
+};
+
+/*
  * Dar like a un libro
  * POST /books/:id/like
  */
@@ -137,7 +204,6 @@ const dislikeBook = async (req, res) => {
   }
 };
 
-
 /*
  * Eliminar una reseña a un libro
  * DELETE /books/review/:id?reviewId=id
@@ -148,12 +214,8 @@ const deleteReview = async (req, res) => {
     // const userId = req.authUser.id;
     const reviewId = req.query.reviewId;
 
+    const resultado = await Book.updateOne({ _id: bookId }, { $pull: { review: { _id: reviewId } } });
 
-    const resultado = await Book.updateOne(
-      { _id: bookId },
-      { $pull: { review: { _id: reviewId } } }
-    );
-    
     if (resultado.modifiedCount > 0) {
       res.status(200).json({ message: "Reseña eliminada correctamente" });
     } else {
@@ -196,7 +258,7 @@ const deleteReview = async (req, res) => {
 /*
  * FUNCIÓN DE VOTOS
  * POST  /books/:id/vote
-*/
+ */
 const voteBook = async (req, res) => {
   try {
     const { id } = req.params;
@@ -232,7 +294,6 @@ const voteBook = async (req, res) => {
   }
 };
 
-
 module.exports = {
   getBook,
   createBook,
@@ -242,5 +303,8 @@ module.exports = {
   likeBook,
   dislikeBook,
   voteBook,
-
+  getGenres,
+  getAuthors,
+  getLanguages,
+  getBookFilters,
 };

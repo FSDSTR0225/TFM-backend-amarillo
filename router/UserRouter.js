@@ -4,7 +4,8 @@ const { body ,check } = require('express-validator');
 
 const {
     loginUser,
-    getUserID
+    getUserID,
+    register
   } = require('../controllers/UserController');
 const validationChecker = require('../middlewares/validationChecker');
 const { getAuthUser } = require('../middlewares/auth');
