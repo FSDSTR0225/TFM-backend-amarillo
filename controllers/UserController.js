@@ -106,11 +106,30 @@ const getAllUsers = async (req, res) => {
   }
 }
 
+/**
+ * obtener preferencias de un usuario
+ * GET /users/preferences/:id
+ */
+const getPreferences = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.preferences);
+  } catch (error) {
+    console.error("Error al obtener las preferencias del usuario:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
 module.exports = {
     loginUser,
     register,
     getUserID,
-    getAllUsers
+    getAllUsers,
+    getPreferences
   };
   
 
