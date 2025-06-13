@@ -7,7 +7,8 @@ const {
     getUserID,
     register,
     getAllUsers,
-    getPreferences
+    getPreferences,
+    insetPreferences
   } = require('../controllers/UserController');
 const validationChecker = require('../middlewares/validationChecker');
 const { getAuthUser } = require('../middlewares/auth');
@@ -59,15 +60,17 @@ router.post('/login',
 //solo puede estrar si esta logueado
 router.use(getAuthUser);
 
-//GET /users/:id
+//GET /users/:id - obtener un usuario por ID
  router.get('/:id',getUserID);
 
-// GET /users
+// GET /users - obtener todos los usuarios
  router.get('/',getAllUsers);
 
  // GET /users/preferences/:id - obtener preferencias de un usuario
  router.get('/preferences/:id', getPreferences);
 
+ // POST /users/preferences/:idBook- insertar o eliminar preferencias de un usuario
+router.post('/preferences/:idBook',insetPreferences);
  
 module.exports = router;
 

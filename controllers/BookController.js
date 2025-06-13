@@ -1,5 +1,5 @@
 const Book = require("../models/BookModel");
-const User = require("../models/UserModel");
+
 
 /*
  * Obtener todas los libros
@@ -193,43 +193,6 @@ const voteBook = async (req, res) => {
 
     book.like = likeCount;
     book.dislike = dislikeCount;
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-    if (vote === "like") {
-      // Si el voto es "like", añadimos las preferencias del usuario
-      book.genre.forEach((genre) => {
-        user.preferences.genres.push(genre);
-      });
-      book.author.forEach((author) => {
-        user.preferences.authors.push(author);
-      });
-
-      user.preferences.languages.push(book.language);
-    } else {
-      // Si el voto es "dislike", eliminamos las preferencias del usuario
-      book.genre.forEach((genre) => {
-        const index = user.preferences.genres.indexOf(genre);
-        if (index > -1) {
-          user.preferences.genres.splice(index, 1);
-        }
-      });
-      book.author.forEach((author) => {
-        const index = user.preferences.authors.indexOf(author);
-        if (index > -1) {
-          user.preferences.authors.splice(index, 1);
-        }
-      });
-
-      const languageIndex = user.preferences.languages.indexOf(book.language);
-      if (languageIndex > -1) {
-        user.preferences.languages.splice(languageIndex, 1);
-      }
-    }
-    await user.save();
 
     await book.save();
 
