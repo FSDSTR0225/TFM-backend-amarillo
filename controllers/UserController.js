@@ -152,6 +152,7 @@ const updateUserProfile = async (req, res) => {
       user.profilePicture = result.secure_url; // Guarda la URL en la base de datos
     }
 
+
     // Manejo de cambio de contraseña (bloque agregado)
     if (newPassword) {
       if (!currentPassword) {
@@ -170,11 +171,6 @@ const updateUserProfile = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
     }
-
-    /**
-     * sacrar todos los usarios
-     * GET /users
-     */
 
     if (name) user.name = name;
     if (profilePicture) user.profilePicture = profilePicture;
@@ -211,6 +207,11 @@ const updateUserProfile = async (req, res) => {
     return res.status(500).json({ error: "Error interno del servidor." });
   }
 };
+
+ /**
+     * sacrar todos los usarios
+     * GET /users
+     */
 
 const getAllUsers = async (req, res) => {
   try {

@@ -13,6 +13,7 @@ const {
 const validationChecker = require("../middlewares/validationChecker");
 const { getAuthUser } = require("../middlewares/auth");
 
+
 //si necesitan usar body
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
