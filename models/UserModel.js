@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
     saved: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -31,20 +35,11 @@ const UserSchema = new mongoose.Schema(
     ],
     preferences: [
       {
-        genres: [
-          {
-            genre: { type: mongoose.Schema.Types.ObjectId, ref: "Genre" },
-            total: Number,
-          },
-        ],
-        languages: [
-          {
-            language: { type: mongoose.Schema.Types.ObjectId, ref: "Language" },
-            total: Number,
-          },
-        ], //ponerlo en Book
+        genres: [String],
+        languages: [String],
       },
     ],
+
     like: [
       {
         type: mongoose.Schema.Types.ObjectId,
