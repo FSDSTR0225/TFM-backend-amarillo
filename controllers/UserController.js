@@ -1,13 +1,12 @@
-
-const User = require('../models/UserModel');
+const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Book = require("../models/BookModel");
 
 /*
-* registro de un usuario
-* POST /users/register 
-*/
+ * registro de un usuario
+ * POST /users/register
+ */
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -46,11 +45,10 @@ const register = async (req, res) => {
   }
 };
 
-
 /*
  * login de un usuario
  * POST /users/login
-*/
+ */
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -65,24 +63,27 @@ const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
     },
-    process.env.JWT_SECRET,
-   // { expiresIn: '3m' } // Cambia el tiempo de expiración 
+    process.env.JWT_SECRET
+    // { expiresIn: '3m' } // Cambia el tiempo de expiración
   );
   const userData = {
     id: user._id,
     name: user.name,
     email: user.email,
   };
-  res.json({msg: "Task updated", access_token: token, token_type: "Bearer" ,user:userData });
+  res.json({
+    msg: "Task updated",
+    access_token: token,
+    token_type: "Bearer",
+    user: userData,
+  });
 };
-
 
 /*
  * sarcar un usuario por id
  * GET /users/:id
-*/
+ */
 const getUserID = async (req, res) => {
-
   const userId = req.params.id;
 
   const user = await User.findById(userId);
@@ -91,7 +92,6 @@ const getUserID = async (req, res) => {
   }
   res.json(user);
 };
-
 
 /**
  * sacrar todos los usarios
@@ -105,7 +105,7 @@ const getAllUsers = async (req, res) => {
     console.error("Error al obtener los usuarios:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
-}
+};
 
 /**
  * obtener preferencias de un usuario
@@ -131,19 +131,22 @@ const getPreferences = async (req, res) => {
  */
 const insetPreferences = async (req, res) => {
   try {
-     const userId = req.user.id;
+    const userId = req.user.id;
     const user = await User.findById(userId);
     const bookid = req.params.idBook;
     const book = await Book.findById(bookid);
-    const {voteType} = req.body; // "like" o "dislike"
+    const { voteType } = req.body; // "like" o "dislike"
 
     if (!user) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
-      if (!book) {
+    if (!book) {
       return res.status(404).json({ message: "Libro no encontrado" });
     }
     if (voteType === "like") {
+      if (user.like.includes(book._id)) {
+        return res.status(400).json({ message: "El libro ya está en like" });
+      }
       // Si el voto es "like", añadimos las preferencias del usuario
       book.genre.forEach((genre) => {
         user.preferences.genres.push(genre);
@@ -151,9 +154,14 @@ const insetPreferences = async (req, res) => {
       book.author.forEach((author) => {
         user.preferences.authors.push(author);
       });
-
       user.preferences.languages.push(book.language);
+      // Si el usuario ya tiene el libro en dislike, lo eliminamos de dislike y lo añadimos a like
+      user.dislike.pull(book._id);
+      user.like.push(book._id);
     } else {
+      if (user.dislike.includes(book._id)) {
+        return res.status(400).json({ message: "El libro ya está en dislike" });
+      }
       // Si el voto es "dislike", eliminamos las preferencias del usuario
       book.genre.forEach((genre) => {
         const index = user.preferences.genres.indexOf(genre);
@@ -172,29 +180,47 @@ const insetPreferences = async (req, res) => {
       if (languageIndex > -1) {
         user.preferences.languages.splice(languageIndex, 1);
       }
+      // Si el usuario ya tiene el libro en like, lo eliminamos de like y lo añadimos a dislike
+      user.like.pull(book._id);
+      user.dislike.push(book._id);
     }
     await user.save();
     res.status(200).json({
       message: "Preferencias actualizadas correctamente",
       preferences: user.preferences,
     });
-  }catch (error) {
+  } catch (error) {
     console.error("Error al insertar las preferencias del usuario:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
-   
+};
+
+/**
+ * ver lo like de un usuario
+ * GET /users/like/:id
+ */
+
+const getLike = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).populate("like");
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    console.log(user.like);
+    res.json(user.like);
+  } catch (error) {
+    console.error("Error al obtener las preferencias del usuario:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
 };
 
 module.exports = {
-    loginUser,
-    register,
-    getUserID,
-    getAllUsers,
-    getPreferences,
-    insetPreferences
-  };
-  
-
-
-
-
+  loginUser,
+  register,
+  getUserID,
+  getAllUsers,
+  getPreferences,
+  insetPreferences,
+  getLike,
+};

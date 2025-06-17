@@ -8,11 +8,11 @@ const {
     register,
     getAllUsers,
     getPreferences,
-    insetPreferences
+    insetPreferences,
+    getLike
   } = require('../controllers/UserController');
 const validationChecker = require('../middlewares/validationChecker');
 const { getAuthUser } = require('../middlewares/auth');
-
 
 
 
@@ -71,6 +71,10 @@ router.use(getAuthUser);
 
  // POST /users/preferences/:idBook- insertar o eliminar preferencias de un usuario
 router.post('/preferences/:idBook',insetPreferences);
+
+
+ // GET /users/like/:id ver lo like de un usuario
+router.get('/like/:id',getLike);
  
 module.exports = router;
 
