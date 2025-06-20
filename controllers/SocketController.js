@@ -2,9 +2,9 @@ const Message = require("../models/MessageModel"); // Ajusta ruta si es necesari
 const RoomModel = require("../models/RoomModel");
 
 function socketHandler(io) {
- 
+ let onlineUsers = {};
   io.on("connection", async (socket) => {
-     let onlineUsers = {};
+     
     console.log(`🔌 Usuario conectado: ${socket.id}`);
    const userId = socket.handshake.query.userId;
    console.log("userId", userId);
