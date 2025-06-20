@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require("express-validator");
 const { getAuthUser } = require("../middlewares/auth");
 
-const { getBook, createBook, getBookID, addReview, deleteReview } = require("../controllers/BookController");
+const { getBook, createBook, getBookID, addReview, deleteReview,likeBook,dislikeBook,voteBook } = require("../controllers/BookController");
 const validationChecker = require("../middlewares/validationChecker");
 
 //si necesitan usar body

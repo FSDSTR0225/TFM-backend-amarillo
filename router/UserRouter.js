@@ -61,7 +61,7 @@ router.post(
 //solo puede estrar si esta logueado
 router.use(getAuthUser);
 
-// GET /users
+// GET /users/all - obtener todos los usuarios
 router.get("/all", getAllUsers);
 
 //GET /users/:id
