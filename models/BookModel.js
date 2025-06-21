@@ -19,8 +19,18 @@ const bookSchema = new Schema(
     //CAMPO PARA VOTOS DE LIKE Y DISLIKE
     votes: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
         vote: { type: String, enum: ["like", "dislike"] },
+      },
+    ],
+    savedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
     //FIN DE CAMPO PARA VOTOS DE LIKE Y DISLIKE

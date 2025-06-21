@@ -1,21 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const { body ,check } = require('express-validator');
+const { body, check } = require("express-validator");
 
 const {
-    loginUser,
-    getUserID,
-    register
-  } = require('../controllers/UserController');
-const validationChecker = require('../middlewares/validationChecker');
-const { getAuthUser } = require('../middlewares/auth');
-
-
-
+  loginUser,
+  getUserID,
+  register,
+  saveBookForUser,
+} = require("../controllers/UserController");
+const validationChecker = require("../middlewares/validationChecker");
+const { getAuthUser } = require("../middlewares/auth");
 
 //si necesitan usar body
 router.use(express.json());
-
 
 // POST /users/register - registro de un usuario
 router.post(
@@ -38,27 +35,32 @@ router.post(
 );
 
 // POST /users/login - login de un usuario
-router.post('/login',
-    [
-    body('email')
-    .isEmail()
-    .withMessage('Email no válido'),
-    body('password')
-    .isLength({ min: 6 })
-    .withMessage('La contraseña debe tener al menos 6 caracteres')
-    .matches(/[0-9]/)
-    .withMessage('La contraseña debe contener al menos un número')
-    .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage('La contraseña debe contener al menos un carácter especial')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
-    .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula'),validationChecker
-]
-    ,loginUser )
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Email no válido"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("La contraseña debe tener al menos 6 caracteres")
+      .matches(/[0-9]/)
+      .withMessage("La contraseña debe contener al menos un número")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage("La contraseña debe contener al menos un carácter especial")
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      .withMessage(
+        "La contraseña debe contener al menos una mayúscula, una minúscula"
+      ),
+    validationChecker,
+  ],
+  loginUser
+);
 //solo puede estrar si esta logueado
 router.use(getAuthUser);
 
 //GET /users/:id
- router.get('/:id',getUserID);
+router.get("/:id", getUserID);
+
+// POST /users/saveBook - Guardar un libro para el usuario
+router.post(`/:bookId/save`, saveBookForUser);
 
 module.exports = router;
-
