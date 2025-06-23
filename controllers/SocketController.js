@@ -65,8 +65,9 @@ function socketHandler(io) {
           userID: msg.id,
           user: msg.sender,
           text: msg.text,
+          bookID: msg.bookID || null,
         });
-
+      console.log("id book", msg.bookData);
         console.log("id room enviar", msg.roomId);
         await RoomModel.findByIdAndUpdate(msg.roomId, {
           $push: { messages: messageNew._id },
