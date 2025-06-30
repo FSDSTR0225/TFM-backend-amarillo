@@ -3,7 +3,17 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
-const { get } = require("mongoose");
+const nodemailer = require("nodemailer");
+const  generateHtmlEmail  = require("../utilies/htmlemail");
+
+let trasporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    auth: {
+        user: "902898001@smtp-brevo.com",
+        pass: process.env.PASS_EMAIL
+    }
+});
 
 /*
  * registro de un usuario
@@ -37,6 +47,15 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
+
+    //enviar email
+
+    await trasporter.sendMail({
+      from: "pablopianeloxd@gmail.com",
+      to: email,
+      subject: "Activación de cuenta",
+      html: generateHtmlEmail(name),
+    });
 
     res.status(201).json({
       msg: "Usuario registrado correctamente. Verifica tu correo para activar la cuenta.",
