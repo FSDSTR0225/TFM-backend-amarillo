@@ -20,6 +20,12 @@ const messageSchema = new Schema(
       required: true,
       trim: true,
       },
+      bookID: {
+        
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Book",
+     
+    }
   },
   {
     timestamps: true, // Añade campos createdAt y updatedAt automáticamente
