@@ -9,8 +9,8 @@ const {
   getBookID,
   addReview,
   deleteReview,
-  likeBook,
-  dislikeBook,
+  // likeBook,
+  // dislikeBook,
   voteBook,
 } = require("../controllers/BookController");
 
@@ -71,11 +71,11 @@ router.patch(
 // DELETE /books/:id?reviewId=id - Eliminar un libro por ID
 router.delete("/review/:id", deleteReview);
 
-// POST /books/:id/like - Dar like a un libro
-router.post("/:id/like", likeBook);
+// // POST /books/:id/like - Dar like a un libro
+// router.post("/:id/like", likeBook);
 
-// POST /books/:id/dislike - Dar dislike a un libro
-router.post("/:id/dislike", dislikeBook);
+// // POST /books/:id/dislike - Dar dislike a un libro
+// router.post("/:id/dislike", dislikeBook);
 
 // POST /books/:id/vote
 router.post("/:id/vote", voteBook);

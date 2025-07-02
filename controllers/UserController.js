@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 const nodemailer = require("nodemailer");
-const  generateHtmlEmail  = require("../utilies/htmlemail");
+const  generateHtmlEmail  = require("../utils/htmlemail");
 
 let trasporter = nodemailer.createTransport({
     host: "smtp-relay.brevo.com",
@@ -51,7 +51,7 @@ const register = async (req, res) => {
     //enviar email
 
     await trasporter.sendMail({
-      from: "pablopianeloxd@gmail.com",
+      from: process.env.EMAIL_HOST,
       to: email,
       subject: "Activación de cuenta",
       html: generateHtmlEmail(name),
@@ -163,10 +163,10 @@ const updateUserProfile = async (req, res) => {
       const result = await streamUpload();
       console.log("Imagen subida con éxito:", result.secure_url);
 
-      const resizedUrl = result.secure_url.replace(
-        "/upload/",
-        "/upload/w_100,h_100,c_fill/"
-      );
+      // const resizedUrl = result.secure_url.replace(
+      //   "/upload/",
+      //   "/upload/w_100,h_100,c_fill/"
+      // );
 
       user.profilePicture = result.secure_url; // Guarda la URL en la base de datos
     }

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 * Obtener todas las tareas
 * POST /token/validate
 */
-validateToken = async (req, res) => {
+const validateToken = async (req, res) => {
   
   res.status(200).json({
     message: 'Token is valid',

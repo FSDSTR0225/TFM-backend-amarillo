@@ -101,41 +101,41 @@ const addReview = async (req, res) => {
  * Dar like a un libro
  * POST /books/:id/like
  */
-const likeBook = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const book = await Book.findById(id);
-    if (!book) return res.status(404).json({ message: "Libro no encontrado" });
+// const likeBook = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const book = await Book.findById(id);
+//     if (!book) return res.status(404).json({ message: "Libro no encontrado" });
 
-    book.like += 1;
-    await book.save();
+//     book.like += 1;
+//     await book.save();
 
-    res.status(200).json({ message: "Like guardado", likes: book.like });
-  } catch (error) {
-    console.error("Error al dar like:", error);
-    res.status(500).json({ message: "Error del servidor" });
-  }
-};
+//     res.status(200).json({ message: "Like guardado", likes: book.like });
+//   } catch (error) {
+//     console.error("Error al dar like:", error);
+//     res.status(500).json({ message: "Error del servidor" });
+//   }
+// };
 
 /*
  * Dar dislike a un libro
  * POST /books/:id/dislike
  */
-const dislikeBook = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const book = await Book.findById(id);
-    if (!book) return res.status(404).json({ message: "Libro no encontrado" });
+// const dislikeBook = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const book = await Book.findById(id);
+//     if (!book) return res.status(404).json({ message: "Libro no encontrado" });
 
-    book.dislike += 1;
-    await book.save();
+//     book.dislike += 1;
+//     await book.save();
 
-    res.status(200).json({ message: "Dislike guardado", dislikes: book.dislike });
-  } catch (error) {
-    console.error("Error al dar dislike:", error);
-    res.status(500).json({ message: "Error del servidor" });
-  }
-};
+//     res.status(200).json({ message: "Dislike guardado", dislikes: book.dislike });
+//   } catch (error) {
+//     console.error("Error al dar dislike:", error);
+//     res.status(500).json({ message: "Error del servidor" });
+//   }
+// };
 
 
 /*
@@ -160,33 +160,7 @@ const deleteReview = async (req, res) => {
       res.status(404).json({ message: "No se encontró la reseña o el libro" });
     }
 
-    // // Buscar el libro por ID
-    // const book = await Book.findById(bookId);
-    // if (!book) {
-    //   return res.status(404).json({ message: "Libro no encontrado" });
-    // }
-
-    // // Buscar la reseña a eliminar
-    // const review = book.review.find(r => r._id.toString() === reviewId);
-    // if (!review) {
-    //   return res.status(404).json({ message: "Reseña no encontrada" });
-    // }
-
-    // // Verificar si el usuario es el autor de la reseña
-    // if (review.user.toString() !== userId) {
-    //   return res.status(403).json({ message: "No tienes permiso para eliminar esta reseña" });
-    // }
-
-    // // Eliminar la reseña del array de reviews del libro
-    // book.review.pull(review);
-
-    // // Guardar el libro actualizado
-    // const updatedBook = await book.save();
-
-    // res.status(200).json({
-    //   message: "Reseña eliminada correctamente",
-    //   book: updatedBook,
-    // });
+ 
   } catch (error) {
     console.error("Error al eliminar la reseña:", error);
     res.status(500).json({ message: "Error del servidor" });
@@ -239,8 +213,8 @@ module.exports = {
   getBookID,
   addReview,
   deleteReview,
-  likeBook,
-  dislikeBook,
+  // likeBook,
+  // dislikeBook,
   voteBook,
 
 };
