@@ -2,6 +2,19 @@ const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Book = require("../models/BookModel");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
+const nodemailer = require("nodemailer");
+const  generateHtmlEmail  = require("../utilies/htmlemail");
+let trasporter = nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    auth: {
+        user: "902898001@smtp-brevo.com",
+        pass: process.env.PASS_EMAIL
+    }
+});
+
 
 /*
  * registro de un usuario
@@ -35,6 +48,15 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
+
+    //enviar email
+
+    await trasporter.sendMail({
+      from: "pablopianeloxd@gmail.com",
+      to: email,
+      subject: "Activación de cuenta",
+      html: generateHtmlEmail(name),
+    });
 
     res.status(201).json({
       msg: "Usuario registrado correctamente. Verifica tu correo para activar la cuenta.",
@@ -70,6 +92,7 @@ const loginUser = async (req, res) => {
     id: user._id,
     name: user.name,
     email: user.email,
+    profilePicture: user.profilePicture,
   };
   res.json({
     msg: "Task updated",
@@ -92,11 +115,122 @@ const getUserID = async (req, res) => {
   }
   res.json(user);
 };
-
-/**
- * sacrar todos los usarios
- * GET /users
+/*
+ * Actualizar perfil de usuario
+ * PUT /users/profile
  */
+const updateUserProfile = async (req, res) => {
+  try {
+    console.log(" Usuario autenticado:", req.user);
+    console.log(" Body recibido:", req.body);
+    console.log("Archivo recibido:", req.file);
+    const userId = req.user.id;
+
+    const {
+      name,
+      profilePicture,
+      genres,
+      languages,
+      currentPassword, // línea agregada para contraseña actual
+      newPassword, // línea agregada para nueva contraseña
+    } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log(" Usuario no encontrado con ID:", userId);
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+    if (req.file) {
+      console.log("Subiendo imagen a Cloudinary...");
+
+      // Convierte el archivo buffer en un stream y súbelo a Cloudinary
+      const streamUpload = () => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "profile_pictures" }, // Puedes cambiar el folder
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload();
+      console.log("Imagen subida con éxito:", result.secure_url);
+
+      const resizedUrl = result.secure_url.replace(
+        "/upload/",
+        "/upload/w_100,h_100,c_fill/"
+      );
+
+      user.profilePicture = result.secure_url; // Guarda la URL en la base de datos
+    }
+
+
+    // Manejo de cambio de contraseña (bloque agregado)
+    if (newPassword) {
+      if (!currentPassword) {
+        console.log(" Falta contraseña actual");
+        return res.status(400).json({ error: "Falta la contraseña actual." });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        console.log(" Contraseña actual incorrecta");
+        return res
+          .status(401)
+          .json({ error: "La contraseña actual es incorrecta." });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    if (name) user.name = name;
+    if (profilePicture) user.profilePicture = profilePicture;
+
+    if (genres || languages) {
+      if (!Array.isArray(user.preferences) || user.preferences.length === 0) {
+        user.preferences = [{}];
+      }
+
+      try {
+        const parsedGenres =
+          typeof genres === "string" ? JSON.parse(genres) : genres;
+        const parsedLanguages =
+          typeof languages === "string" ? JSON.parse(languages) : languages;
+
+        if (parsedGenres) user.preferences[0].genres = parsedGenres;
+        if (parsedLanguages) user.preferences[0].languages = parsedLanguages;
+      } catch (err) {
+        console.error("Error parseando géneros o idiomas:", err);
+        return res
+          .status(400)
+          .json({ error: "Formato inválido para géneros o idiomas." });
+      }
+    }
+
+    await user.save();
+    console.log(" Usuario actualizado con éxito");
+
+    return res
+      .status(200)
+      .json({ message: "Perfil actualizado correctamente.", user });
+  } catch (error) {
+    console.error("Error actualizando perfil:", error);
+    return res.status(500).json({ error: "Error interno del servidor." });
+  }
+};
+
+ /**
+     * sacrar todos los usarios
+     * GET /users
+     */
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
@@ -106,6 +240,7 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ message: "Error del servidor" });
   }
 };
+
 
 /**
  * obtener preferencias de un usuario
@@ -223,4 +358,5 @@ module.exports = {
   getPreferences,
   insetPreferences,
   getLike,
+  updateUserProfile,
 };

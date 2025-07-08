@@ -153,7 +153,7 @@ const getBookID = async (req, res) => {
 const addReview = async (req, res) => {
   try {
     const bookId = req.params.id;
-    console.log("Datos de la reseña:", req.body);
+    console.log("Datos de la reseña:", req.body, "ID del libro:", bookId);
     const { text, rating } = req.body;
 
     // Buscar el libro por ID
@@ -161,9 +161,8 @@ const addReview = async (req, res) => {
     if (!book) {
       return res.status(404).json({ message: "Libro no encontrado" });
     }
-    userId = req.user;
-
-    console.log("ID del usuario:", userId.id);
+   const  userId = req.user.id;
+    console.log("ID del usuario:", userId);
 
     // // Verificar si el usuario ya ha dejado una reseña (opcional)
     // const existingReview = book.review.find(r => r.user.toString() === user);
@@ -172,7 +171,7 @@ const addReview = async (req, res) => {
     // }
 
     // Añadir la reseña al array de reviews del libro
-    book.review.push({ user: userId.id, text, rating });
+    book.review.push({ user: userId, text, rating });
 
     // Guardar el libro actualizado
     const updatedBook = await book.save();

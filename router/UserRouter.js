@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { body ,check } = require('express-validator');
+const { body, check } = require("express-validator");
+const upload = require("../middlewares/uploadMiddleware");
 
 const {
     loginUser,
@@ -9,16 +10,18 @@ const {
     getAllUsers,
     getPreferences,
     insetPreferences,
-    getLike
+    getLike,
+    updateUserProfile
   } = require('../controllers/UserController');
 const validationChecker = require('../middlewares/validationChecker');
 const { getAuthUser } = require('../middlewares/auth');
 
 
 
+
 //si necesitan usar body
 router.use(express.json());
-
+router.use(express.urlencoded({ extended: true }));
 
 // POST /users/register - registro de un usuario
 router.post(
@@ -41,30 +44,42 @@ router.post(
 );
 
 // POST /users/login - login de un usuario
-router.post('/login',
-    [
-    body('email')
-    .isEmail()
-    .withMessage('Email no válido'),
-    body('password')
-    .isLength({ min: 6 })
-    .withMessage('La contraseña debe tener al menos 6 caracteres')
-    .matches(/[0-9]/)
-    .withMessage('La contraseña debe contener al menos un número')
-    .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage('La contraseña debe contener al menos un carácter especial')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
-    .withMessage('La contraseña debe contener al menos una mayúscula, una minúscula'),validationChecker
-]
-    ,loginUser )
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Email no válido"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("La contraseña debe tener al menos 6 caracteres")
+      .matches(/[0-9]/)
+      .withMessage("La contraseña debe contener al menos un número")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage("La contraseña debe contener al menos un carácter especial")
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/)
+      .withMessage(
+        "La contraseña debe contener al menos una mayúscula, una minúscula"
+      ),
+    validationChecker,
+  ],
+  loginUser
+);
 //solo puede estrar si esta logueado
 router.use(getAuthUser);
 
-//GET /users/:id - obtener un usuario por ID
- router.get('/:id',getUserID);
 
-// GET /users - obtener todos los usuarios
- router.get('/',getAllUsers);
+// GET /users/all - obtener todos los usuarios
+router.get("/all", getAllUsers);
+
+//GET /users/:id
+router.get("/:id", getUserID);
+
+// PUT /users/profile - actualizar perfil de usuario
+router.put(
+  "/profile",
+  upload.single("photo"), // Middleware de multer para 1 archivo con campo 'photo'
+  updateUserProfile
+);
+
 
  // GET /users/preferences/:id - obtener preferencias de un usuario
  router.get('/preferences/:id', getPreferences);
@@ -77,4 +92,3 @@ router.post('/preferences/:idBook',insetPreferences);
 router.get('/like/:id',getLike);
  
 module.exports = router;
-

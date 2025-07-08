@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
     saved: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -29,6 +33,7 @@ const UserSchema = new mongoose.Schema(
         status: { enum: ["read", "reading", "abandoned"] },
       },
     ],
+
     preferences: {
     authors: [{
       type: String,

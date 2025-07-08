@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "inport": "node scripts/inportBD.js"
+    "inport": "node scripts/inportBD.js",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +22,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.6.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -29,8 +32,11 @@
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
+    "multer": "^2.0.1",
     "node-fetch": "^2.7.0",
-    "socket.io": "^4.8.1"
+    "nodemailer": "^7.0.3",
+    "socket.io": "^4.8.1",
+    "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
