@@ -12,6 +12,11 @@ const {
   likeBook,
   dislikeBook,
   voteBook,
+  getVoteBook,
+  getGenres,
+  getAuthors,
+  getLanguages,
+  getBookFilters,
 } = require("../controllers/BookController");
 
 const validationChecker = require("../middlewares/validationChecker");
@@ -47,6 +52,20 @@ router.use(getAuthUser);
 // GET /books - Obtener todos los libros
 router.get("/", getBook);
 
+// GET /books/filters - Obtener filtros de libros
+router.get("/filters", getBookFilters);
+
+// GET /books/genres - Obtener géneros de libros
+router.get("/genres", getGenres);
+
+// GET /books/authors - Obtener autores de libros
+router.get("/authors", getAuthors);
+
+// GET /books/languages - Obtener idiomas de libros
+router.get("/languages", getLanguages);
+
+
+
 // GET /books/:id - Obtener un libro por ID
 router.get("/:id", getBookID);
 // PATCH /books/review/:id - Agregar una reseña a un libro
@@ -79,5 +98,8 @@ router.post("/:id/dislike", dislikeBook);
 
 // POST /books/:id/vote
 router.post("/:id/vote", voteBook);
+
+// GET /books/vote/:id - Obtener los votos de un libro
+router.get("/vote/:id", getVoteBook);
 
 module.exports = router;

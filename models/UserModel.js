@@ -33,13 +33,21 @@ const UserSchema = new mongoose.Schema(
         status: { enum: ["read", "reading", "abandoned"] },
       },
     ],
-    preferences: [
-      {
-        genres: [String],
-        languages: [String],
-      },
-    ],
 
+    preferences: {
+    authors: [{
+      type: String,
+      
+    }],
+    genres: [{
+      type: String,
+      
+     }],
+    languages: [{
+      type: String,
+      
+    }]
+  },
     like: [
       {
         type: mongoose.Schema.Types.ObjectId,
