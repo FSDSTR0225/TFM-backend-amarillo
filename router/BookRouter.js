@@ -13,6 +13,7 @@ const {
   likeBook,
   dislikeBook,
   voteBook,
+  getVoteBook
 } = require("../controllers/BookController");
 const validationChecker = require("../middlewares/validationChecker");
 
@@ -84,5 +85,8 @@ router.post("/:id/dislike", dislikeBook);
 
 // POST /books/:id/vote
 router.post("/:id/vote", voteBook);
+
+// GET /books/vote/:id - Obtener los votos de un libro
+router.get("/vote/:id", getVoteBook);
 
 module.exports = router;
