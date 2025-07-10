@@ -1,7 +1,9 @@
 const User = require("../models/UserModel");
+const Book = require("../models/BookModel");
+const Room = require("../models/RoomModel");
+const Message = require("../models/MessageModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Book = require("../models/BookModel");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 const nodemailer = require("nodemailer");
@@ -129,8 +131,6 @@ const updateUserProfile = async (req, res) => {
     const {
       name,
       profilePicture,
-      genres,
-      languages,
       currentPassword, // línea agregada para contraseña actual
       newPassword, // línea agregada para nueva contraseña
     } = req.body;
@@ -194,26 +194,6 @@ const updateUserProfile = async (req, res) => {
     if (name) user.name = name;
     if (profilePicture) user.profilePicture = profilePicture;
 
-    if (genres || languages) {
-      if (!Array.isArray(user.preferences) || user.preferences.length === 0) {
-        user.preferences = [{}];
-      }
-
-      try {
-        const parsedGenres =
-          typeof genres === "string" ? JSON.parse(genres) : genres;
-        const parsedLanguages =
-          typeof languages === "string" ? JSON.parse(languages) : languages;
-
-        if (parsedGenres) user.preferences[0].genres = parsedGenres;
-        if (parsedLanguages) user.preferences[0].languages = parsedLanguages;
-      } catch (err) {
-        console.error("Error parseando géneros o idiomas:", err);
-        return res
-          .status(400)
-          .json({ error: "Formato inválido para géneros o idiomas." });
-      }
-    }
 
     await user.save();
     console.log(" Usuario actualizado con éxito");
@@ -350,6 +330,71 @@ const getLike = async (req, res) => {
   }
 };
 
+
+/**
+ * Obtener preferencias de un usuario
+ * DELETE /users/delete/:id
+ */
+
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Eliminar mensajes del usuario
+    await Message.deleteMany({ userID: userId });
+
+    // Sacar al usuario de las salas
+    await Room.updateMany(
+      { users: userId },
+      { $pull: { users: userId } }
+    );
+
+    // ===== Eliminar votos en libros y ajustar contadores =====
+
+    // Buscar todos los libros donde el usuario haya votado
+    const books = await Book.find(
+      { 'votes.user': userId },
+      { votes: 1 }
+    );
+
+    // Recorrer cada libro para eliminar y ajustar
+    for (const book of books) {
+      const voteEntry = book.votes.find(v => v.user.toString() === userId);
+      if (!voteEntry) continue;
+
+      const isLike = voteEntry.vote === 'like';
+      const isDislike = voteEntry.vote === 'dislike';
+
+      await Book.findByIdAndUpdate(
+        book._id,
+        {
+          $pull: { votes: { user: userId } },
+          $inc: { like: isLike ? -1 : 0, dislike: isDislike ? -1 : 0 }
+        }
+      );
+    }
+
+    // ===== Eliminar reseñas del usuario =====
+    await Book.updateMany(
+      { 'review.user': userId },
+      { $pull: { review: { user: userId } } }
+    );
+
+    // ===== Finalmente eliminar el usuario =====
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar el usuario:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+
+
 module.exports = {
   loginUser,
   register,
@@ -359,4 +404,5 @@ module.exports = {
   insetPreferences,
   getLike,
   updateUserProfile,
+  deleteUser,
 };

@@ -11,7 +11,8 @@ const {
     getPreferences,
     insetPreferences,
     getLike,
-    updateUserProfile
+    updateUserProfile,
+    deleteUser
   } = require('../controllers/UserController');
 const validationChecker = require('../middlewares/validationChecker');
 const { getAuthUser } = require('../middlewares/auth');
@@ -90,5 +91,8 @@ router.post('/preferences/:idBook',insetPreferences);
 
  // GET /users/like/:id ver lo like de un usuario
 router.get('/like/:id',getLike);
+
+// DELETE /users/delete/:id - eliminar un usuario
+router.delete('/delete/:id',deleteUser);
  
 module.exports = router;
