@@ -17,6 +17,9 @@ const {
   getAuthors,
   getLanguages,
   getBookFilters,
+  getSavedBooks,
+  saveBookToUser,
+  deleteSavedBooks
 } = require("../controllers/BookController");
 
 const validationChecker = require("../middlewares/validationChecker");
@@ -101,5 +104,14 @@ router.post("/:id/vote", voteBook);
 
 // GET /books/vote/:id - Obtener los votos de un libro
 router.get("/vote/:id", getVoteBook);
+
+// GET /books/saved/all - Obtener todos los libros guardados por el usuario
+router.get("/saved/all",  getSavedBooks);
+
+// POST /books/save/:id - Guardar libro
+router.post("/save/:id",  saveBookToUser); 
+
+// DELETE /books/saved/:id - Eliminar libro guardado
+router.delete("/saved/:id", deleteSavedBooks);
 
 module.exports = router;

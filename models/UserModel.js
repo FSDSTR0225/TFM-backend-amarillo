@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    saved: [
+    savedBooks: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Book",

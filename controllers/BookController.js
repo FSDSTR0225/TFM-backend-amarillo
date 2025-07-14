@@ -1,4 +1,5 @@
 const Book = require("../models/BookModel");
+const User = require("../models/UserModel");
 
 
 /*
@@ -292,7 +293,10 @@ const voteBook = async (req, res) => {
   }
 };
 
-
+/*
+ * Obtener los votos de un libro
+ * GET /books/vote/:id
+ */
 const getVoteBook = async (req, res) => {
   try {
     const { id } = req.params;
@@ -311,6 +315,79 @@ const getVoteBook = async (req, res) => {
 
 
 
+/*
+ * Guardar un libro en la lista de libros guardados del usuario
+ * POST /books/save/:id
+ * 
+ */
+const saveBookToUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const bookId = req.params.id;
+
+    console.log("ID del usuario:", userId);
+    console.log("ID del libro:", bookId);
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+
+    if (!user.savedBooks.includes(bookId)) {
+      user.savedBooks.push(bookId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Libro guardado correctamente" });
+  } catch (error) {
+    console.error("Error al guardar el libro:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+/*
+ * Obtener todos los libros guardados por el usuario
+ * GET /books/saved/all
+ */
+
+const getSavedBooks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).populate("savedBooks");
+
+    if (!user)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+
+    res.status(200).json(user.savedBooks);
+  } catch (error) {
+    console.error("Error al obtener libros guardados:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+
+/* 
+ * Eliminar un libro de la lista de libros guardados del usuario
+ * DELETE /books/saved/:id
+ */
+
+const deleteSavedBooks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const bookId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    user.savedBooks = user.savedBooks.filter((id) => id.toString() !== bookId);
+    await user.save();
+
+    res.status(200).json({ message: "Libro eliminado de la lista de guardados" });
+  } catch (error) {
+    console.error("Error al eliminar el libro guardado:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+
 module.exports = {
   getBook,
   createBook,
@@ -325,4 +402,7 @@ module.exports = {
   getAuthors,
   getLanguages,
   getBookFilters,
+  saveBookToUser,
+  getSavedBooks,
+  deleteSavedBooks
 };
