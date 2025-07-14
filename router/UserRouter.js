@@ -4,14 +4,20 @@ const { body, check } = require("express-validator");
 const upload = require("../middlewares/uploadMiddleware");
 
 const {
-  loginUser,
-  getUserID,
-  register,
-  updateUserProfile,
-  getAllUsers,
-} = require("../controllers/UserController");
-const validationChecker = require("../middlewares/validationChecker");
-const { getAuthUser } = require("../middlewares/auth");
+    loginUser,
+    getUserID,
+    register,
+    getAllUsers,
+    getPreferences,
+    insetPreferences,
+    getLike,
+    updateUserProfile,
+    deleteUser
+  } = require('../controllers/UserController');
+const validationChecker = require('../middlewares/validationChecker');
+const { getAuthUser } = require('../middlewares/auth');
+
+
 
 
 //si necesitan usar body
@@ -61,7 +67,8 @@ router.post(
 //solo puede estrar si esta logueado
 router.use(getAuthUser);
 
-// GET /users
+
+// GET /users/all - obtener todos los usuarios
 router.get("/all", getAllUsers);
 
 //GET /users/:id
@@ -74,4 +81,18 @@ router.put(
   updateUserProfile
 );
 
+
+ // GET /users/preferences/:id - obtener preferencias de un usuario
+ router.get('/preferences/:id', getPreferences);
+
+ // POST /users/preferences/:idBook- insertar o eliminar preferencias de un usuario
+router.post('/preferences/:idBook',insetPreferences);
+
+
+ // GET /users/like/:id ver lo like de un usuario
+router.get('/like/:id',getLike);
+
+// DELETE /users/delete/:id - eliminar un usuario
+router.delete('/delete/:id',deleteUser);
+ 
 module.exports = router;

@@ -2,9 +2,19 @@ const Message = require("../models/MessageModel"); // Ajusta ruta si es necesari
 const RoomModel = require("../models/RoomModel");
 
 function socketHandler(io) {
+ let onlineUsers = {};
   io.on("connection", async (socket) => {
+     
     console.log(`🔌 Usuario conectado: ${socket.id}`);
+   const userId = socket.handshake.query.userId;
+   console.log("userId", userId);
+  if (userId) {
+    onlineUsers[userId] = socket.id;
 
+  }
+      io.emit("getOnlineUsers", Object.keys(onlineUsers));
+
+  console.log("Usuarios en línea:", Object.keys(onlineUsers));
     // Unirse a la sala
     socket.on("room join", async (msg) => {
       try {
@@ -55,8 +65,9 @@ function socketHandler(io) {
           userID: msg.id,
           user: msg.sender,
           text: msg.text,
+          bookID: msg.bookID || null,
         });
-
+      console.log("id book", msg.bookData);
         console.log("id room enviar", msg.roomId);
         await RoomModel.findByIdAndUpdate(msg.roomId, {
           $push: { messages: messageNew._id },
@@ -102,6 +113,10 @@ function socketHandler(io) {
 
     socket.on("disconnect", () => {
       console.log(`❌ Usuario desconectado: ${socket.id}`);
+       if (userId) {
+      delete onlineUsers[userId];
+      io.emit("getOnlineUsers", Object.keys(onlineUsers));
+    }
     });
   });
 }

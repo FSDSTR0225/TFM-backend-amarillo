@@ -1,4 +1,6 @@
 const Book = require("../models/BookModel");
+const User = require("../models/UserModel");
+
 
 /*
  * Obtener todas los libros
@@ -7,7 +9,27 @@ const Book = require("../models/BookModel");
 
 const getBook = async (req, res) => {
   try {
-    const books = await Book.find(); // Obtén todos los libros
+    const query = {};
+
+    // Aplicar filtros solo si vienen en la query
+    if (req.query.name) {
+      query.name = { $regex: req.query.name, $options: "i" };
+    }
+
+    if (req.query.genre) {
+      query.genre = { $in: req.query.genre.split(",") };
+    }
+
+    if (req.query.language) {
+      query.language = { $regex: req.query.language, $options: "i" };
+    }
+
+    if (req.query.author) {
+      query.author = { $in: req.query.author.split(",") };
+    }
+
+    // Buscar libros con o sin filtros
+    const books = await Book.find(query);
 
     if (!books || books.length === 0) {
       return res.status(404).json({ message: "No se encontraron libros" });
@@ -15,10 +37,80 @@ const getBook = async (req, res) => {
 
     res.status(200).json(books);
   } catch (error) {
-    console.error("Error al obtener el libro:", error);
+    console.error("Error al obtener los libros:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
+
+
+/**
+ * 
+ * GET /books/genres 
+ * Obtener géneros únicos de libros
+ * 
+ */
+const getGenres = async (req, res) => {
+  try {
+    const genres = await Book.distinct("genre");
+    res.json(genres.flat()); // Aplana arrays porque genre es un array en cada libro
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener géneros" });
+  }
+};
+
+ 
+/**
+ * GET /books/authors 
+ * Obtener autores únicos de libros
+ */
+const getAuthors = async (req, res) => {
+  try {
+    const authors = await Book.distinct("author");
+    res.json(authors.flat()); // Aplana arrays porque author es un array en cada libro
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener autores" });
+  }
+};
+
+
+/**
+ * 
+ * GET /books/languages 
+ * Obtener idiomas únicos de libros
+ * 
+ */
+const getLanguages = async (req, res) => {
+  try {
+    const languages = await Book.distinct("language");
+    res.json(languages); // Los idiomas suelen ser cadenas simples, no arrays anidados, por lo que no necesita .flat()
+  } catch (error) {
+    console.error("Error al obtener idiomas:", error); // Añadida consola para depuración
+    res.status(500).json({ message: "Error al obtener idiomas" });
+  }
+};
+
+
+/**
+ * 
+ * GET /books/filters
+ * Obtener todos los filtros posibles (géneros, idiomas, autores únicos). 
+ */
+const getBookFilters = async (req, res) => {
+  try {
+    // Realizamos las peticiones en paralelo para optimizar el rendimiento.
+    const [genres, languages, authors] = await Promise.all([
+      Book.distinct("genre"),
+      Book.distinct("language"), // Usamos distinct para idiomas aquí
+      Book.distinct("author"),
+    ]);
+
+    res.status(200).json({ genres: genres.flat(), languages, authors: authors.flat() });
+  } catch (error) {
+    console.error("Error al obtener filtros:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
 
 /*
  * Crear un libro
@@ -28,8 +120,7 @@ const createBook = async (req, res) => {
   try {
     const { name } = req.body;
 
-    const existingBook = await Book.findOne({  name  });
-
+    const existingBook = await Book.findOne({ name });
 
     if (existingBook) {
       return res.status(409).json({ message: "El libro ya existe" });
@@ -63,7 +154,7 @@ const getBookID = async (req, res) => {
 const addReview = async (req, res) => {
   try {
     const bookId = req.params.id;
-    console.log("Datos de la reseña:", req.body);
+    console.log("Datos de la reseña:", req.body, "ID del libro:", bookId);
     const { text, rating } = req.body;
 
     // Buscar el libro por ID
@@ -71,10 +162,9 @@ const addReview = async (req, res) => {
     if (!book) {
       return res.status(404).json({ message: "Libro no encontrado" });
     }
-    userId = req.authUser;
-    console.log("ID del usuario:", userId.id);
+   const  userId = req.user.id;
+    console.log("ID del usuario:", userId);
 
-    
     // // Verificar si el usuario ya ha dejado una reseña (opcional)
     // const existingReview = book.review.find(r => r.user.toString() === user);
     // if (existingReview) {
@@ -82,7 +172,7 @@ const addReview = async (req, res) => {
     // }
 
     // Añadir la reseña al array de reviews del libro
-    book.review.push({ user: userId.id, text, rating });
+    book.review.push({ user: userId, text, rating });
 
     // Guardar el libro actualizado
     const updatedBook = await book.save();
@@ -94,10 +184,10 @@ const addReview = async (req, res) => {
   } catch (error) {
     console.error("Error al añadir la reseña:", error);
     res.status(500).json({ message: "Error del servidor" });
-    }
-  }; 
-  
- /*
+  }
+};
+
+/*
  * Dar like a un libro
  * POST /books/:id/like
  */
@@ -108,8 +198,8 @@ const likeBook = async (req, res) => {
     if (!book) return res.status(404).json({ message: "Libro no encontrado" });
 
     book.like += 1;
-    await book.save();
 
+    await book.save();
     res.status(200).json({ message: "Like guardado", likes: book.like });
   } catch (error) {
     console.error("Error al dar like:", error);
@@ -130,13 +220,14 @@ const dislikeBook = async (req, res) => {
     book.dislike += 1;
     await book.save();
 
-    res.status(200).json({ message: "Dislike guardado", dislikes: book.dislike });
+    res
+      .status(200)
+      .json({ message: "Dislike guardado", dislikes: book.dislike });
   } catch (error) {
     console.error("Error al dar dislike:", error);
     res.status(500).json({ message: "Error del servidor" });
   }
 };
-
 
 /*
  * Eliminar una reseña a un libro
@@ -145,48 +236,18 @@ const dislikeBook = async (req, res) => {
 const deleteReview = async (req, res) => {
   try {
     const bookId = req.params.id;
-    // const userId = req.authUser.id;
     const reviewId = req.query.reviewId;
-
 
     const resultado = await Book.updateOne(
       { _id: bookId },
       { $pull: { review: { _id: reviewId } } }
     );
-    
+
     if (resultado.modifiedCount > 0) {
       res.status(200).json({ message: "Reseña eliminada correctamente" });
     } else {
       res.status(404).json({ message: "No se encontró la reseña o el libro" });
     }
-
-    // // Buscar el libro por ID
-    // const book = await Book.findById(bookId);
-    // if (!book) {
-    //   return res.status(404).json({ message: "Libro no encontrado" });
-    // }
-
-    // // Buscar la reseña a eliminar
-    // const review = book.review.find(r => r._id.toString() === reviewId);
-    // if (!review) {
-    //   return res.status(404).json({ message: "Reseña no encontrada" });
-    // }
-
-    // // Verificar si el usuario es el autor de la reseña
-    // if (review.user.toString() !== userId) {
-    //   return res.status(403).json({ message: "No tienes permiso para eliminar esta reseña" });
-    // }
-
-    // // Eliminar la reseña del array de reviews del libro
-    // book.review.pull(review);
-
-    // // Guardar el libro actualizado
-    // const updatedBook = await book.save();
-
-    // res.status(200).json({
-    //   message: "Reseña eliminada correctamente",
-    //   book: updatedBook,
-    // });
   } catch (error) {
     console.error("Error al eliminar la reseña:", error);
     res.status(500).json({ message: "Error del servidor" });
@@ -196,7 +257,7 @@ const deleteReview = async (req, res) => {
 /*
  * FUNCIÓN DE VOTOS
  * POST  /books/:id/vote
-*/
+ */
 const voteBook = async (req, res) => {
   try {
     const { id } = req.params;
@@ -232,6 +293,100 @@ const voteBook = async (req, res) => {
   }
 };
 
+/*
+ * Obtener los votos de un libro
+ * GET /books/vote/:id
+ */
+const getVoteBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const book = await Book.findById(id);
+    if (!book) {
+      return res.status(404).json({ message: "Libro no encontrado" });
+    }
+    const likeCount = book.votes.filter((v) => v.vote === "like").length;
+    const dislikeCount = book.votes.filter((v) => v.vote === "dislike").length;
+    res.json({ like: likeCount, dislike: dislikeCount });
+  } catch (error) {
+    console.error("Error al obtener el voto:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+
+
+/*
+ * Guardar un libro en la lista de libros guardados del usuario
+ * POST /books/save/:id
+ * 
+ */
+const saveBookToUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const bookId = req.params.id;
+
+    console.log("ID del usuario:", userId);
+    console.log("ID del libro:", bookId);
+    const user = await User.findById(userId);
+    if (!user)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+
+    if (!user.savedBooks.includes(bookId)) {
+      user.savedBooks.push(bookId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "Libro guardado correctamente" });
+  } catch (error) {
+    console.error("Error al guardar el libro:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+/*
+ * Obtener todos los libros guardados por el usuario
+ * GET /books/saved/all
+ */
+
+const getSavedBooks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).populate("savedBooks");
+
+    if (!user)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+
+    res.status(200).json(user.savedBooks);
+  } catch (error) {
+    console.error("Error al obtener libros guardados:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
+
+/* 
+ * Eliminar un libro de la lista de libros guardados del usuario
+ * DELETE /books/saved/:id
+ */
+
+const deleteSavedBooks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const bookId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    user.savedBooks = user.savedBooks.filter((id) => id.toString() !== bookId);
+    await user.save();
+
+    res.status(200).json({ message: "Libro eliminado de la lista de guardados" });
+  } catch (error) {
+    console.error("Error al eliminar el libro guardado:", error);
+    res.status(500).json({ message: "Error del servidor" });
+  }
+};
+
 
 module.exports = {
   getBook,
@@ -242,5 +397,12 @@ module.exports = {
   likeBook,
   dislikeBook,
   voteBook,
-
+  getVoteBook,
+  getGenres,
+  getAuthors,
+  getLanguages,
+  getBookFilters,
+  saveBookToUser,
+  getSavedBooks,
+  deleteSavedBooks
 };
