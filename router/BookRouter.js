@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 const { getAuthUser } = require("../middlewares/auth");
+const { verifyToken } = require("../middlewares/verifyToken");
 
 const {
   getBook,
@@ -16,6 +17,8 @@ const {
   getGenres,
   getAuthors,
   getLanguages,
+  saveBookToUser,
+  getSavedBooks,
 } = require("../controllers/BookController");
 const validationChecker = require("../middlewares/validationChecker");
 
@@ -95,5 +98,8 @@ router.post("/:id/dislike", dislikeBook);
 
 // POST /books/:id/vote
 router.post("/:id/vote", voteBook);
+
+router.get("/saved/all", verifyToken, getSavedBooks);
+router.post("/:id/save", verifyToken, saveBookToUser); // Guardar libro
 
 module.exports = router;

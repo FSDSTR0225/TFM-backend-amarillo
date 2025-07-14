@@ -58,6 +58,7 @@ const UserSchema = new mongoose.Schema(
         ref: "List",
       },
     ],
+    savedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Book" }],
   },
   {
     timestamps: true, // Añade campos createdAt y updatedAt automáticamente
