@@ -99,7 +99,7 @@ router.post("/:id/dislike", dislikeBook);
 // POST /books/:id/vote
 router.post("/:id/vote", voteBook);
 
-router.get("/saved/all", verifyToken, getSavedBooks);
-router.post("/:id/save", verifyToken, saveBookToUser); // Guardar libro
+router.get("/saved/all",  getSavedBooks);
+router.post("/save/:id",  saveBookToUser); // Guardar libro
 
 module.exports = router;
