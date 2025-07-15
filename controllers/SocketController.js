@@ -24,23 +24,63 @@ function socketHandler(io) {
         console.log("room no leido", room);
         if (!room) {
           console.warn(`No existe sala entre ${msg.userid1} y ${msg.userid2}`);
-          socket.emit("unread messages", 0);
+          socket.emit("unread messages", { msg: 0, user2: msg.userid2 });
           return;
         }
 
         await room.populate({
           path: "messages",
           match: { reader: false },
-          select: "reader",
+           select: "_id reader userID"  
         });
-        const unreadMessages = room.messages.filter(
-          (message) => !message.reader
+
+        const unreadMessages = room.messages;
+
+        const hasUserID1 = room.messages.some(
+          (message) => message.userID.toString() === msg.userid1
         );
+
+        if (hasUserID1) {
+          socket.emit("unread messages", { msg: 0, user2: msg.userid2 });
+          return;
+        }
         console.log("Mensajes no leídos:", unreadMessages.length);
-        socket.emit("unread messages", { msg: unreadMessages.length , user2: msg.userid2 });
+        socket.emit("unread messages", {
+          msg: unreadMessages.length,
+          user2: msg.userid2,
+        });
       } catch (error) {
         console.error("❌ Error al obtener mensajes no leídos:", error);
       }
+    });
+
+
+
+    // Marcar mensajes como leídos
+    socket.on("mark read", async (msg) => {
+      try {
+        console.log("msg mark read", msg);
+        const room = await RoomModel.findOne({
+          users: { $all: [msg.userid1, msg.userid2] },
+        });
+
+        if (!room) {
+          console.warn(`No existe sala entre ${msg.userid1} y ${msg.userid2}`);
+          return;
+        }
+
+        // Actualizar los mensajes del usuario como leídos
+        const result = await Message.updateMany(
+          { _id: { $in: room.messages }, userID: msg.userid2, reader: false },
+          { $set: { reader: true } }
+        );
+
+        console.log("Mensajes actualizados como leídos:", result.nModified);
+      } catch (error) {
+        console.error("❌ Error al marcar mensajes como leídos:", error);
+      }
+
+
     });
 
     // Unirse a la sala
