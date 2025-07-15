@@ -2,19 +2,47 @@ const Message = require("../models/MessageModel"); // Ajusta ruta si es necesari
 const RoomModel = require("../models/RoomModel");
 
 function socketHandler(io) {
- let onlineUsers = {};
+  let onlineUsers = {};
   io.on("connection", async (socket) => {
-     
     console.log(`🔌 Usuario conectado: ${socket.id}`);
-   const userId = socket.handshake.query.userId;
-   console.log("userId", userId);
-  if (userId) {
-    onlineUsers[userId] = socket.id;
+    const userId = socket.handshake.query.userId;
+    console.log("userId", userId);
+    if (userId) {
+      onlineUsers[userId] = socket.id;
+    }
+    io.emit("getOnlineUsers", Object.keys(onlineUsers));
 
-  }
-      io.emit("getOnlineUsers", Object.keys(onlineUsers));
+    console.log("Usuarios en línea:", Object.keys(onlineUsers));
 
-  console.log("Usuarios en línea:", Object.keys(onlineUsers));
+    // ver cuantos mesajen no leídos tiene un usuario
+    socket.on("unread messages", async (msg) => {
+      try {
+        console.log("msg no leido", msg);
+        const room = await RoomModel.findOne({
+          users: { $all: [msg.userid1, msg.userid2] },
+        });
+        console.log("room no leido", room);
+        if (!room) {
+          console.warn(`No existe sala entre ${msg.userid1} y ${msg.userid2}`);
+          socket.emit("unread messages", 0);
+          return;
+        }
+
+        await room.populate({
+          path: "messages",
+          match: { reader: false },
+          select: "reader",
+        });
+        const unreadMessages = room.messages.filter(
+          (message) => !message.reader
+        );
+        console.log("Mensajes no leídos:", unreadMessages.length);
+        socket.emit("unread messages", { msg: unreadMessages.length , user2: msg.userid2 });
+      } catch (error) {
+        console.error("❌ Error al obtener mensajes no leídos:", error);
+      }
+    });
+
     // Unirse a la sala
     socket.on("room join", async (msg) => {
       try {
@@ -67,7 +95,7 @@ function socketHandler(io) {
           text: msg.text,
           bookID: msg.bookID || null,
         });
-      console.log("id book", msg.bookData);
+        console.log("id book", msg.bookData);
         console.log("id room enviar", msg.roomId);
         await RoomModel.findByIdAndUpdate(msg.roomId, {
           $push: { messages: messageNew._id },
@@ -113,10 +141,10 @@ function socketHandler(io) {
 
     socket.on("disconnect", () => {
       console.log(`❌ Usuario desconectado: ${socket.id}`);
-       if (userId) {
-      delete onlineUsers[userId];
-      io.emit("getOnlineUsers", Object.keys(onlineUsers));
-    }
+      if (userId) {
+        delete onlineUsers[userId];
+        io.emit("getOnlineUsers", Object.keys(onlineUsers));
+      }
     });
   });
 }

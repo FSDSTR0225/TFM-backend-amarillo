@@ -25,6 +25,10 @@ const messageSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Book",
      
+    },
+    reader:{
+      type: Boolean,
+      default: false, // Por defecto, el mensaje no es leído
     }
   },
   {
