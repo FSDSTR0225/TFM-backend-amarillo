@@ -50,7 +50,7 @@ return `<html lang="es">
 <body>
 
   <div class="success-message">
-    <h1>🎉 ¡Bienvenido a BookTinder!</h1>
+    <h1>🎉 ¡Bienvenido a Mooday!</h1>
     <p>Tu cuenta se ha creado con éxito ${name}. Ya puedes empezar a explorar y encontrar tu próxima lectura favorita.</p>
    
   </div>

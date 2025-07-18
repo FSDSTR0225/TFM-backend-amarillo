@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema(
     },
     profilePicture: {
       type: String,
-      default: "",
+      default: 'https://res.cloudinary.com/dqi7yrvih/image/upload/v1752511639/profile_pictures/prqq2gpipvq2taagboqy.png'
     },
     savedBooks: [
       {
